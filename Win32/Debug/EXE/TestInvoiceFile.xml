@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<InvoiceWood InvoiceType="Invoice">
+  <InvoiceWoodHeader>
+    <InvoiceNumber>107924</InvoiceNumber>
+    <InvoiceDate>
+      <Date>
+        <Year>2024</Year>
+        <Month>4</Month>
+        <Day>27</Day>
+      </Date>
+    </InvoiceDate>
+    <InvoiceReference AssignedBy="seller" InvoiceReferenceType="LoadingOrderNo">17166</InvoiceReference>
+    <InvoiceReference AssignedBy="seller" InvoiceReferenceType="Contract">F22/1291</InvoiceReference>
+    <InvoiceReference AssignedBy="seller" InvoiceReferenceType="Delivery note">26871</InvoiceReference>
+    <BillToParty>
+      <PartyIdentifier/>
+      <PartyIdentifier PartyidentifierType="AssignedBySeller">498</PartyIdentifier>
+      <PartyIdentifier PartyidentifierType="VATIdentificationNumber">556645-6215</PartyIdentifier>
+      <NameAddress>
+        <Name1>Byggmax Norge</Name1>
+        <Name2>Peter Lyvestand</Name2>
+        <Address1>Box 6063</Address1>
+        <PostalCode>171 06</PostalCode>
+        <City>Solna</City>
+        <Country ISOCountryCode="FI"/>
+      </NameAddress>
+    </BillToParty>
+    <SupplierParty>
+      <PartyIdentifier PartyidentifierType="AssignedBySeller">498</PartyIdentifier>
+      <PartyIdentifier PartyidentifierType="VATIdentificationNumber">556645-6215</PartyIdentifier>
+      <NameAddress>
+        <Name1>Byggmax Norge</Name1>
+        <Name2>Peter Lyvestand</Name2>
+        <Address1>Box 6063</Address1>
+        <PostalCode>171 06</PostalCode>
+        <City>Solna</City>
+        <Country ISOCountryCode="FI"/>
+      </NameAddress>
+    </SupplierParty>
+    <BuyerParty>
+      <PartyIdentifier PartyidentifierType="AssignedBySeller">498</PartyIdentifier>
+      <PartyIdentifier PartyidentifierType="VATIdentificationNumber">556645-6215</PartyIdentifier>
+      <NameAddress>
+        <Name1>Byggmax Norge</Name1>
+        <Name2>Peter Lyvestand</Name2>
+        <Address1>Box 6063</Address1>
+        <PostalCode>171 06</PostalCode>
+        <City>Solna</City>
+        <Country ISOCountryCode="FI"/>
+      </NameAddress>
+    </BuyerParty>
+    <ShipToCharacteristics>
+      <ShipToParty PartyType="PlaceFinalDestination">
+        <PartyIdentifier PartyidentifierType="AssignedBySeller">498</PartyIdentifier>
+        <PartyIdentifier PartyidentifierType="VATIdentificationNumber">556645-6215</PartyIdentifier>
+        <NameAddress>
+          <Name1>Byggmax Norge</Name1>
+          <Name2>Peter Lyvestand</Name2>
+          <Address1>Box 6063</Address1>
+          <PostalCode>171 06</PostalCode>
+          <City>Solna</City>
+          <Country ISOCountryCode="FI"/>
+        </NameAddress>
+      </ShipToParty>
+      <TermsOfDelivery>
+        <IncotermsLocation Incoterms="CIP">Oslo</IncotermsLocation>
+      </TermsOfDelivery>
+    </ShipToCharacteristics>
+    <SenderParty PartyType="Seller">
+      <PartyIdentifier PartyidentifierType="AssignedBySeller">498</PartyIdentifier>
+      <PartyIdentifier PartyidentifierType="VATIdentificationNumber">556645-6215</PartyIdentifier>
+      <NameAddress>
+        <Name1>Byggmax Norge</Name1>
+        <Name2>Peter Lyvestand</Name2>
+        <Address1>Box 6063</Address1>
+        <PostalCode>171 06</PostalCode>
+        <City>Solna</City>
+        <Country ISOCountrycode="FI">SE</Country>
+      </NameAddress>
+    </SenderParty>
+  </InvoiceWoodHeader>
+  <InvoiceShipment>
+    <ShipmentID ShipmentIDType="LotIdentifier">SHID</ShipmentID>
+    <InvoiceProductGroup>
+      <ProductGroupID>BOL1</ProductGroupID>
+      <InvoiceWoodLineItem>
+        <InvoiceLineNumber>1</InvoiceLineNumber>
+      </InvoiceWoodLineItem>
+      <InvoiceWoodLineItem>
+        <InvoiceLineNumber>2</InvoiceLineNumber>
+      </InvoiceWoodLineItem>
+      <InvoiceWoodLineItem>
+        <InvoiceLineNumber>3</InvoiceLineNumber>
+      </InvoiceWoodLineItem>
+      <InvoiceWoodLineItem>
+        <InvoiceLineNumber>4</InvoiceLineNumber>
+      </InvoiceWoodLineItem>
+      <InvoiceWoodLineItem>
+        <InvoiceLineNumber>5</InvoiceLineNumber>
+      </InvoiceWoodLineItem>
+    </InvoiceProductGroup>
+  </InvoiceShipment>
+</InvoiceWood>

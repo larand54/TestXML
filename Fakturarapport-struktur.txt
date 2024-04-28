@@ -1,0 +1,197 @@
+Faktura_ver3_SV.fr3
+
+DS_MAIN:             dbo.vis_INVOICE_FR
+DS_ShipTo:           dbo.vis_shipto_FR
+DS_Invoicedload:     dbo.InvoicedLoad
+DS_CertWood:         dbo.vis_invoice_CertText_FR
+DS_KD_Certification: dbo.vis_invoice_KD_CertText_FR
+PAGE HEADER
+  LOGO-Bild:        DS_MAIN.LOGOTYPE
+  Fakturadatum:     DS_MAIN.INV DATE
+  FAKTURATYP:       DS_MAIN.Inv_Value_To_Be_Paid_2 - < 0 ['KREDIT FAKTURA NR'] else ['FAKTURA NR]
+  KUND NR:			DS_MAIN.Kundnr
+  
+ ReportTitle
+	Säljarens adress:	Wood Support AB, Box 17, 661 21 Säffle
+	Köparens adress:	DS_MAIN.INVOICE_ADDRESS
+	Orgnr:				DS_MAIN.VATNo
+	Söknamn:			DS_MAIN.SearchName
+	Förfallodatum:		DS_MAIN.strDueDate
+	
+	BET VILLKOR:		DS_MAIN.PaymentDescription
+	LEV VILLKOR:		DS_MAIN.DeliveryTerm
+	VÅR REFERENS:		DS_MAIN.SalesMan, DS_MAIN.INV_TEXT
+	ER REFERENS:		DS_MAIN.AddressLine4
+
+Header
+  MasterData
+    GroupHeader1		DS_MAIN.OurReference 
+      KONTRAKT:			DS_MAIN.OrderNoText
+      LASTORDER:		DS_MAIN.InvoicedLoad
+	  FÖLJESEDEL:		DS_InvoicedLoad.LoadNo
+	  
+	  GroupHeader2		DS_MAIN.SHIPREF
+		Child1:			Visible if (<DS_MAIN."QuickInvoice"> = 0 AND  <DS_MAIN."ShipRef"> <> '')
+			LEV ADDRESS:	[DS_MAIN."AddressLine1"] [DS_MAIN."AddressLine2"] [DS_MAIN."AddressLine3"] [DS_MAIN."StateOrProvince"] [DS_MAIN."PostalCode"] [DS_MAIN."AddressCity"] [DS_ShipTo."AddressCountry"]
+			BESTÄLLNINGS NR	[DS_MAIN."CUSTREF"]
+			
+		Child2:			Visible if  <DS_MAIN."ShipRef"> <> ''
+			PAKET MÄRK:, PROUKT/LÄNGD:, PAKET:, VOLYM:, PRIS:, VÄRDE	
+			DetailData1:
+				Child4:
+					[DS_MAIN."ProductCodeInfo"]
+				Child5:
+					[DS_MAIN."Articleno"], [DS_MAIN."ProductDescription"], [DS_MAIN."LengthDescription"], [DS_MAIN."Volume_OrderUnit"], [DS_MAIN."PRICE_UNIT"], [DS_MAIN."Price"], [DS_MAIN."ProductValue"]
+				Child3:
+	  GroupFooter2
+	GroupFooter1
+		Summeringar
+Footer1
+	Child8
+		CertWood
+	Child9
+		KDCert
+	  
+	
+ReportSummary
+KASSARABATT:
+		[DS_MAIN."CURRENCY"], [DS_MAIN."Discount"]
+[IIF(<DS_MAIN."Inv_Value_To_Be_Paid_2"> <0,'Er tillgodo','Summa exkl. Moms')],[DS_MAIN."CURRENCY"], [DS_MAIN."Tot_Inv_Inc_Freight_Extras"]
+Moms 25%,[DS_MAIN."CURRENCY"], [DS_MAIN."VAT_Value"]
+Avrundning, [DS_MAIN."CURRENCY"], [<rounding>]
+Totalt inkl Moms, [DS_MAIN."CURRENCY"], [DS_MAIN."Inv_Value_To_Be_Paid_2"]
+[DS_MAIN."SkatteUpplag"]
+
+
+
+
+		
+[IIF (<DS_MAIN."Inv_Value_To_Be_Paid_2"> <0, 'Vår fordran enligt denna faktura har överlåtits till – och ska betalas till – Skandinaviska Enskilda Banken AB (publ.). Ange alltid fakturanummer vid betalning.',<DS_MAIN."PAYMENT_TEXT">) ] 
+
+procedure DetailData1OnBeforePrint(Sender: TfrxComponent);
+var
+  type2: boolean;
+  type3: boolean;
+  type23: boolean;
+begin
+
+  type23 := <DS_MAIN."TypeOfRow"> in [2,3];
+  type2 := <DS_MAIN."TypeOfRow"> in [2];
+  type3 := <DS_MAIN."TypeOfRow"> in [3];
+  Child3.Visible := type2;
+  DetailData1.Visible := not type3;
+  Child4.Visible := not type23 and (<DS_Main."ProductCodeInfo"> <> '');
+  Child5.Visible := not type23;
+  if ( not type3 ) THEN BEGIN
+       sumNM3 :=  sumNM3 + <DS_MAIN."NominalM3">;
+       sumProductValue := sumProductValue + <DS_MAIN."ProductValue">;
+       sumAM3 := sumAM3 + <DS_MAIN."ActualNetM3">;
+       sumMeters := sumMeters + <DS_MAIN."LinealMeter">;
+       sumNoOfPkgs := sumNoOfPkgs + <DS_MAIN."NoOfPkgs">;
+  END
+end;
+
+procedure GroupHeader1OnBeforePrint(Sender: TfrxComponent);
+begin
+//  Child1.Visible := not ((<DS_MAIN."TypeOfRow"> > 1) and  (<DS_MAIN."QuickInvoice"> = 0));
+  Child1.Visible :=  (<DS_MAIN."QuickInvoice"> = 0);
+end;
+
+procedure GroupFooter2OnBeforePrint(Sender: TfrxComponent);
+begin
+  GroupFooter2.Visible := DetailData1.Visible;
+end;
+
+
+procedure ReportSummary1OnBeforePrint(Sender: TfrxComponent);
+begin
+  Report.Variables.Variables['sumNoOfPkgs']:= sumNoOfPkgs;
+  Report.Variables.Variables['sumMeters']:= sumMeters;
+  Report.Variables.Variables['sumAM3']:= sumAM3;
+  Report.Variables.Variables['sumNM3']:= sumNM3;
+  Report.Variables.Variables['sumProductValue']:= sumProductValue;
+  rounding := <DS_MAIN."Inv_Value_To_Be_Paid_2"> - <DS_MAIN."VAT_Value"> - <DS_MAIN."Tot_Inv_Inc_Freight_Extras">;
+  Report.Variables.Variables['rounding'] := rounding;
+  memSkatteUpplag.visible := <DS_MAIN."SkatteUpplag"> <> '';
+  memPaymentText.visible := <DS_MAIN."PAYMENT_TEXT"> <> '';
+(*  child6.visible := <DS_MAIN."SkatteUpplag"> <> '';
+  child7.visible := <DS_MAIN."PAYMENT_TEXT"> <> '';
+  child8.visible := <DS_CertWood."CertifiedDescription"> <> '';
+  child9.visible := <DS_KD_Certification."KD_Description"> <> '';
+  *)
+end;
+
+procedure Page5OnBeforePrint(Sender: TfrxComponent);
+begin
+    if MasterData2.Dataset.EOF THEN
+    CertWood.Visible := false;
+end;
+
+procedure ReportSummary1OnAfterCalcHeight(Sender: TfrxComponent);
+begin
+  if Engine.FreeSpace > RPHeight then
+    Engine.CurY := Engine.CurY + Engine.FreeSpace - RPHeight
+  else begin
+    Engine.NewPage;
+    Engine.CurY := Engine.CurY + Engine.FreeSpace - RPHeight;
+  end;
+end;
+
+procedure Child5OnBeforePrint(Sender: TfrxComponent);
+begin
+  if <DS_MAIN."PRICE_UNIT"> = 'PCS' then  InvoiceVolume_OrderUnit_int.visible := true
+  else InvoiceVolume_OrderUnit_int.visible := false ;
+  InvoiceVolume_OrderUnit_decimal.visible := not InvoiceVolume_OrderUnit_int.visible;
+end;
+
+procedure ReportTitle1OnBeforePrint(Sender: TfrxComponent);
+begin
+  DynAreaSpace := Engine.freeSpace;
+  if Credit then begin
+    Memo73.Visible := false;
+    Memo34.Visible := false;
+    Memo10.Visible := false;
+    Memo11.Visible := false;
+    InvoiceLevVillkor.Visible := false;
+    PaymentDescription.Visible := false;
+  end
+  else begin
+    Memo73.Visible := true;
+    Memo34.Visible := true;
+    Memo10.Visible := true;
+    Memo11.Visible := true;
+    InvoiceLevVillkor.Visible := true;
+    PaymentDescription.Visible := true;
+  end;
+end;
+
+
+procedure GroupHeader2OnBeforePrint(Sender: TfrxComponent);
+begin
+  //GroupHeader2.visible := not <DS_MAIN."TypeOfRow"> = 3;
+  Line2.visible :=  <DS_MAIN."TypeOfRow"> <> 3;
+  if <DS_MAIN."ShipRef"> = '' THEN
+  begin
+    Child1.visible := false;
+    Child2.visible := false;
+  end
+  else begin
+    Child1.visible := true;
+    Child2.visible := true;
+  end;
+end;
+
+procedure PageHeader1OnBeforePrint(Sender: TfrxComponent);
+begin
+  Credit := (<DS_MAIN."Inv_Value_To_Be_Paid_2"> < 0);
+end;
+
+procedure Child2OnBeforePrint(Sender: TfrxComponent);
+begin
+  if (<DS_MAIN."Kundnr"> IN [498,366]) then //BYGGMAX
+  begin
+    Memo29.Text := 'ARTIKEL NR'
+  end
+  else
+    Memo29.Text := 'PAKET MÄRK.';
+end;
