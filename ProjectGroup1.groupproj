@@ -1,0 +1,72 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{2D7A1D7E-F7B7-4134-B158-7424136E05D5}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="TestXML.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="RefTest\RefTest.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="..\..\Private\Kompileringstest\Project1.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="..\VIDA\VIS-IIX\VIS 1211\VIS.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="TestXML">
+        <MSBuild Projects="TestXML.dproj"/>
+    </Target>
+    <Target Name="TestXML:Clean">
+        <MSBuild Projects="TestXML.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="TestXML:Make">
+        <MSBuild Projects="TestXML.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="RefTest">
+        <MSBuild Projects="RefTest\RefTest.dproj"/>
+    </Target>
+    <Target Name="RefTest:Clean">
+        <MSBuild Projects="RefTest\RefTest.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="RefTest:Make">
+        <MSBuild Projects="RefTest\RefTest.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Project1">
+        <MSBuild Projects="..\..\Private\Kompileringstest\Project1.dproj"/>
+    </Target>
+    <Target Name="Project1:Clean">
+        <MSBuild Projects="..\..\Private\Kompileringstest\Project1.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="Project1:Make">
+        <MSBuild Projects="..\..\Private\Kompileringstest\Project1.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="VIS">
+        <MSBuild Projects="..\VIDA\VIS-IIX\VIS 1211\VIS.dproj"/>
+    </Target>
+    <Target Name="VIS:Clean">
+        <MSBuild Projects="..\VIDA\VIS-IIX\VIS 1211\VIS.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="VIS:Make">
+        <MSBuild Projects="..\VIDA\VIS-IIX\VIS 1211\VIS.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="TestXML;RefTest;Project1;VIS"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="TestXML:Clean;RefTest:Clean;Project1:Clean;VIS:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="TestXML:Make;RefTest:Make;Project1:Make;VIS:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>

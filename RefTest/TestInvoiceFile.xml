@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<InvoiceWood InvoiceType="Invoice">
+  <InvoiceWoodHeader>
+    <InvoiceNumber>123456789</InvoiceNumber>
+    <InvoiceReference AssignedBy="seller" InvoiceReferenceType="LoadingOrderNo">87532</InvoiceReference>
+  </InvoiceWoodHeader>
+</InvoiceWood>
