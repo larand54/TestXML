@@ -3,16 +3,17 @@ unit uInvoiceClasses;
 interface
 uses
   InvoiceWoodV2R31
-  , IInvoiceInterfaces
   , uInvoiceType
+  , IInvoiceInterfaces
+  , System.Generics.Collections
+  , system.classes
 ;
 type
-(*
-TCMInvoiceHeader = class(TInterfacedObject, ICMInvoiceHeader)
-  private
-  public
-end;
-*)
+TCMInvoiceHeader = class;
+TCMAddressInfo = class;
+TCMParty = class;
+//TCMDateBasis = class;
+TCMCountryOfOrigin = class;
 
 //TCMAddressInfo = class(TInterfacedObject, ICMNameAddress)
 TCMAddressInfo = class
@@ -33,15 +34,15 @@ TCMAddressInfo = class
     function Get_StateOrProvince: TCMState;
     function Get_PostalCode: TCMPostalCode;
 
-    procedure Set_Name1(const pcmValue: TCMName);
-    procedure Set_Address1(const pcmValue: TCMAddress);
-    procedure Set_Address2(const pcmValue: TCMAddress);
-    procedure Set_Address3(const pcmValue: TCMAddress);
-    procedure Set_County(const pcmCounty: TCMCounty);
-    procedure Set_City(const pcmValue: TCMCity);
-    procedure Set_Country(const pcmValue: TCMCountry);
-    procedure Set_StateOrProvince(const pcmValue: TCMState);
-    procedure Set_PostalCode(const pcmValue: TCMPostalCode);
+    procedure Set_Name1(const pmcValue: TCMName);
+    procedure Set_Address1(const pmcValue: TCMAddress);
+    procedure Set_Address2(const pmcValue: TCMAddress);
+    procedure Set_Address3(const pmcValue: TCMAddress);
+    procedure Set_County(const pmcCounty: TCMCounty);
+    procedure Set_City(const pmcValue: TCMCity);
+    procedure Set_Country(const pmcValue: TCMCountry);
+    procedure Set_StateOrProvince(const pmcValue: TCMState);
+    procedure Set_PostalCode(const pmcValue: TCMPostalCode);
   protected
   public
     property Name1: TCMName read Get_Name1 write Set_Name1;
@@ -57,20 +58,13 @@ end;
 
 TCMParty = class(TInterfacedObject, IUnknown)
     private
-      fName1, fName2: string;
+      fName: string;
       fAddress: ICMNameAddress;
-      fPostalCode: string;
-      fCity: string;
-      fCountry: string;
     protected
     public
-      constructor create(const pmcName1, pmcName2, pmcAddress, pmcPostCode, pmcCity, pmcCountry: string);
-      property Name1: string read fName1;
-      property Name2: string read fName2;
+      constructor create(const pmcName: string; const pmcAddress: ICMNameAddress);
+      property Name: string read fName;
       property Address: ICMNameAddress read fAddress;
-      property PostCode: string read fPostalCode;
-      property City: string read fCity;
-      property Country: string read fCountry;
   end;
 
 TCMInvoice = class(TInterfacedObject, ICMInvoice)
@@ -88,39 +82,99 @@ TCMInvoice = class(TInterfacedObject, ICMInvoice)
   protected
   public
     constructor create;
-    function Get_InvoiceType: UnicodeString;
-    function Get_InvoiceContextType: UnicodeString;
-    function Get_Reissued: UnicodeString;
-    function Get_Language: UnicodeString;
+    function Get_InvoiceType: TCM_XMLString;
+    function Get_InvoiceContextType: TCM_XMLString;
+    function Get_Reissued: TCM_XMLString;
+    function Get_Language: TCM_XMLString;
     function Get_InvoiceShipment: ICMInvoiceShipmentList;
-    procedure Set_InvoiceType(const pcmValue: UnicodeString);
-    procedure Set_InvoiceContextType(const pcmValue: UnicodeString);
-    procedure Set_Reissued(const pcmValue: UnicodeString);
-    procedure Set_Language(const pcmValue: UnicodeString);
-    { Methods & Properties }
-    property InvoiceType: UnicodeString read Get_InvoiceType write Set_InvoiceType;
-    property InvoiceContextType: UnicodeString read Get_InvoiceContextType write Set_InvoiceContextType;
-    property Reissued: UnicodeString read Get_Reissued write Set_Reissued;
-    property Language: UnicodeString read Get_Language write Set_Language;
-    property InvoiceHeader: ICMInvoiceHeader read Get_InvoiceHeader;
-    property InvoiceShipment: ICMInvoiceShipmentList read Get_InvoiceShipment;
-    property MonetaryAdjustment: ICMMonetaryAdjustmentList read Get_MonetaryAdjustment;
-    property InvoiceSummary: ICMInvoiceSummary read Get_InvoiceSummary;
     function getInvoiceHeader: ICMInvoiceHeader;
     function getBillToParty: ICMParty;
     function getSupplierParty: ICMParty;
     function getBuyerParty: ICMParty;
     function getShipToParty: ICMParty;
+    procedure Set_InvoiceType(const pmcValue: TCM_XMLString);
+    procedure Set_InvoiceContextType(const pmcValue: TCM_XMLString);
+    procedure Set_Reissued(const pmcValue: TCM_XMLString);
+    procedure Set_Language(const pmcValue: TCM_XMLString);
+    { Methods & Properties }
+    property InvoiceType: TCM_XMLString read Get_InvoiceType write Set_InvoiceType;
+    property InvoiceContextType: TCM_XMLString read Get_InvoiceContextType write Set_InvoiceContextType;
+    property Reissued: TCM_XMLString read Get_Reissued write Set_Reissued;
+    property Language: TCM_XMLString read Get_Language write Set_Language;
+    property InvoiceHeader: ICMInvoiceHeader read Get_InvoiceHeader;
+    property InvoiceShipment: ICMInvoiceShipmentList read Get_InvoiceShipment;
+    property MonetaryAdjustment: ICMMonetaryAdjustmentList read Get_MonetaryAdjustment;
+    property InvoiceSummary: ICMInvoiceSummary read Get_InvoiceSummary;
 end;
 
-implementation
+{ TXMLInvoiceWoodHeader }
 
+  TCMInvoiceHeader = class(TInterfacedObject, ICMInvoiceHeader)
+  private
+    fInvoicedate: TCM_XMLString;
+    fInvoiceNo: TCM_XMLString;
+    FInvoiceReference: ICMInvoiceReferenceList;
+    FRemitToParty: ICMPartyList;
+    FOtherParty: ICMPartyList;
+    FReceiverParty: ICMPartyList;
+    FLocationParty: ICMPartyList;
+    FAdditionalText: TStringList;
+    function Get_CarrierParty: ICMParty;
+    function Get_CountryOfConsumption: ICMCountryOfConsumption;
+  protected
+    function Get_InvoiceNumber: TCM_XMLString;
+    function Get_InvoiceDate: TCM_XMLString;
+    function Get_InvoiceReference: ICMInvoiceReferenceList;
+    function Get_BillToParty: ICMParty;
+    function Get_SupplierParty: ICMParty;
+    function Get_BuyerParty: ICMParty;
+    function Get_RemitToParty: ICMPartyList;
+    function Get_ShipToCharacteristics: ICMShipToCharacteristics;
+    function Get_OtherParty: ICMPartyList;
+    function Get_SenderParty: ICMParty;
+    function Get_ReceiverParty: ICMPartyList;
+    function Get_CountryOfOrigin: ICMCountryOfOrigin;
+    function Get_CountryOfDestination: ICMCountryOfDestination;
+//    function Get_AdditionalText: TStringList;
+    procedure Set_InvoiceNumber(const pmcValue: TCM_XMLString);
+    procedure Set_InvoiceDate(const pmcValue: TCM_XMLString);
+  public
+    property Invoicedate: TCMInvoiceDate read get_InvoiceDate;
+  end;
+
+
+{ TXMLCountryOfOrigin }
+
+  TCMCountryOfOrigin = class(TInterfacedObject, ICMCountryOfOrigin)
+  protected
+    { IXMLCountryOfOrigin }
+    function Get_Country: ICMCountry;
+  public
+    procedure AfterConstruction; override;
+  end;
+
+{ TXMLCountryOfDestination }
+
+  TCMCountryOfDestination = class(TInterfacedObject, ICMCountryOfDestination)
+  protected
+    { IXMLCountryOfDestination }
+    function Get_Country: ICMCountry;
+  public
+    procedure AfterConstruction; override;
+  end;
+
+
+implementation
+uses
+  system.SysUtils
+;
 { TCMParty }
 
-constructor TCMParty.create(const pmcName1, pmcName2,
-  pmcAddress, pmcPostCode, pmcCity, pmcCountry: string);
+constructor TCMParty.create(const pmcName: string; const pmcAddress: ICMNameAddress);
 begin
-
+  inherited create;
+  fName := pmcname;
+  fAddress := pmcAddress;
 end;
 
 
@@ -128,7 +182,8 @@ end;
 
 constructor TCMInvoice.create;
 begin
-
+   inherited create;
+   fInvoiceHeader := TCMInvoiceHeader.create;
 end;
 
 function TCMInvoice.getBillToParty: ICMParty;
@@ -163,7 +218,9 @@ end;
 
 function TCMInvoice.Get_InvoiceHeader: ICMInvoiceHeader;
 begin
-
+  if fInvoiceHeader = nil then
+    fInvoiceHeader := TCMInvoiceHeader.Create;
+  result := fInvoiceheader;
 end;
 
 function TCMInvoice.Get_InvoiceShipment: ICMInvoiceShipmentList;
@@ -178,7 +235,7 @@ end;
 
 function TCMInvoice.Get_InvoiceType: UnicodeString;
 begin
-
+  result := '';
 end;
 
 
@@ -197,22 +254,22 @@ begin
 
 end;
 
-procedure TCMInvoice.Set_InvoiceContextType(const pcmValue: UnicodeString);
+procedure TCMInvoice.Set_InvoiceContextType(const pmcValue: UnicodeString);
 begin
 
 end;
 
-procedure TCMInvoice.Set_InvoiceType(const pcmValue: UnicodeString);
+procedure TCMInvoice.Set_InvoiceType(const pmcValue: TCM_XMLString);
 begin
 
 end;
 
-procedure TCMInvoice.Set_Language(const pcmValue: UnicodeString);
+procedure TCMInvoice.Set_Language(const pmcValue: UnicodeString);
 begin
 
 end;
 
-procedure TCMInvoice.Set_Reissued(const pcmValue: UnicodeString);
+procedure TCMInvoice.Set_Reissued(const pmcValue: UnicodeString);
 begin
 
 end;
@@ -264,49 +321,167 @@ begin
 
 end;
 
-procedure TCMAddressInfo.Set_Address1(const pcmValue: TCMAddress);
+procedure TCMAddressInfo.Set_Address1(const pmcValue: TCMAddress);
 begin
 
 end;
 
-procedure TCMAddressInfo.Set_Address2(const pcmValue: TCMAddress);
+procedure TCMAddressInfo.Set_Address2(const pmcValue: TCMAddress);
 begin
 
 end;
 
-procedure TCMAddressInfo.Set_Address3(const pcmValue: TCMAddress);
+procedure TCMAddressInfo.Set_Address3(const pmcValue: TCMAddress);
 begin
 
 end;
 
-procedure TCMAddressInfo.Set_City(const pcmValue: TCMCity);
+procedure TCMAddressInfo.Set_City(const pmcValue: TCMCity);
 begin
 
 end;
 
-procedure TCMAddressInfo.Set_Country(const pcmValue: TCMCountry);
+procedure TCMAddressInfo.Set_Country(const pmcValue: TCMCountry);
 begin
 
 end;
 
-procedure TCMAddressInfo.Set_County(const pcmCounty: TCMCounty);
+procedure TCMAddressInfo.Set_County(const pmcCounty: TCMCounty);
 begin
 
 end;
 
-procedure TCMAddressInfo.Set_Name1(const pcmValue: TCMName);
+procedure TCMAddressInfo.Set_Name1(const pmcValue: TCMName);
 begin
 
 end;
 
-procedure TCMAddressInfo.Set_PostalCode(const pcmValue: TCMPostalCode);
+procedure TCMAddressInfo.Set_PostalCode(const pmcValue: TCMPostalCode);
 begin
 
 end;
 
-procedure TCMAddressInfo.Set_StateOrProvince(const pcmValue: TCMState);
+procedure TCMAddressInfo.Set_StateOrProvince(const pmcValue: TCMState);
 begin
 
+end;
+
+
+
+{ TCMCountryOfOrigin }
+
+procedure TCMCountryOfOrigin.AfterConstruction;
+begin
+  inherited;
+
+end;
+
+function TCMCountryOfOrigin.Get_Country: ICMCountry;
+begin
+
+end;
+
+{ TCMCountryOfDestination }
+
+procedure TCMCountryOfDestination.AfterConstruction;
+begin
+  inherited;
+
+end;
+
+function TCMCountryOfDestination.Get_Country: ICMCountry;
+begin
+
+end;
+
+
+
+{ TCMInvoiceHeader }
+
+
+function TCMInvoiceHeader.Get_BillToParty: ICMParty;
+begin
+
+end;
+
+function TCMInvoiceHeader.Get_BuyerParty: ICMParty;
+begin
+
+end;
+
+function TCMInvoiceHeader.Get_CarrierParty: ICMParty;
+begin
+
+end;
+
+function TCMInvoiceHeader.Get_CountryOfConsumption: ICMCountryOfConsumption;
+begin
+
+end;
+
+function TCMInvoiceHeader.Get_CountryOfDestination: ICMCountryOfDestination;
+begin
+
+end;
+
+function TCMInvoiceHeader.Get_CountryOfOrigin: ICMCountryOfOrigin;
+begin
+
+end;
+
+function TCMInvoiceHeader.Get_InvoiceDate: TCMInvoiceDate;
+begin
+  result := fInvoicedate;
+end;
+
+function TCMInvoiceHeader.Get_InvoiceNumber: TCM_XMLString;
+begin
+
+end;
+
+function TCMInvoiceHeader.Get_InvoiceReference: ICMInvoiceReferenceList;
+begin
+
+end;
+
+function TCMInvoiceHeader.Get_OtherParty: ICMPartyList;
+begin
+
+end;
+
+function TCMInvoiceHeader.Get_ReceiverParty: ICMPartyList;
+begin
+
+end;
+
+function TCMInvoiceHeader.Get_RemitToParty: ICMPartyList;
+begin
+
+end;
+
+function TCMInvoiceHeader.Get_SenderParty: ICMParty;
+begin
+
+end;
+
+function TCMInvoiceHeader.Get_ShipToCharacteristics: ICMShipToCharacteristics;
+begin
+
+end;
+
+function TCMInvoiceHeader.Get_SupplierParty: ICMParty;
+begin
+
+end;
+
+procedure TCMInvoiceHeader.Set_InvoiceDate(const pmcValue: TCM_XMLString);
+begin
+  fInvoicedate := pmcValue;
+end;
+
+procedure TCMInvoiceHeader.Set_InvoiceNumber(const pmcValue: TCM_XMLString);
+begin
+  fInvoiceNo := pmcValue;
 end;
 
 end.

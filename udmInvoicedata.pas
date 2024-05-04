@@ -11,6 +11,7 @@ uses
   FireDAC.Comp.Client, FireDAC.Phys.ODBCBase, FireDAC.Comp.UI
   , IInvoiceInterfaces
   , uInvoiceClasses
+  , uInvoiceType
 ;
 
 type
@@ -39,13 +40,13 @@ type
     { Public declarations }
 
 //    function retrieveListOfInvoices(const pcmBuyer: string; const pcmFromDate: string);
-    function collectInvoiceData(const pmcInvNo: integer; const pmcInvoice: ICMInvoice): boolean;
+    function collectInvoiceData(const pmcInvNo: string; const pmcInvoice: ICMInvoice): boolean;
     function retrieveInvoiceHeader: ICMInvoiceHeader;
     function retrieveShipTo: ICMParty;
     function retrieveBillTo: ICMParty;
     function retrieveBuyer: ICMParty;
     property DBReadComplete: boolean read fDBComplete;
-
+    property con: TFDConnection read con1;
     property invno: integer read fInvNo;
   end;
 
@@ -62,10 +63,12 @@ uses
 
 {$R *.dfm}
 
-function TdmXMLInvoice.collectInvoiceData(const pmcInvNo: integer; const pmcInvoice: ICMInvoice): boolean;
+function TdmXMLInvoice.collectInvoiceData(const pmcInvNo: string; const pmcInvoice: ICMInvoice): boolean;
 var
   intInvNo: integer;
+  invHead: TCMInvoiceHeader;
 begin
+  fInvoice := pmcInvoice;
   fDBReadComplete := false;
   result := false;
   if sp_Invoice.Active then
@@ -81,36 +84,38 @@ begin
   if qry_InternalFromInvno.Active then
     qry_InternalFromInvno.Close;
 
-  fInternalInvNo := getInternalInvoiceNo(pmcInvNo);
+  fInternalInvNo := getInternalInvoiceNo(strToInt(pmcInvNo));
   if fInternalInvNo > 0 then
   begin
     try
 
 //  Get Data From invoice stored procedure
-      sp_Invoice.ParamByName('InvoiceNo').AsInteger := fInternalInvNo;
+      sp_Invoice.ParamByName('@InvoiceNo').AsInteger := fInternalInvNo;
       sp_Invoice.Active := true;
 
 //  Get data from ShipTo proc.
-      sp_ShipTo.ParamByName('InvoiceNo').AsInteger := fInternalInvNo;
+      sp_ShipTo.ParamByName('@InvoiceNo').AsInteger := fInternalInvNo;
       sp_ShipTo.Active := true;
 
 //  Get data from InvoiceLoad proc.
-      sp_InvoicedLoad.ParamByName('InvoiceNo').AsInteger := fInternalInvNo;
+      sp_InvoicedLoad.ParamByName('@InvoiceNo').AsInteger := fInternalInvNo;
       sp_InvoicedLoad.Active := true;
 
 //  Get data from CertWood proc.
-      sp_CertWood.ParamByName('InvoiceNo').AsInteger := fInternalInvNo;
+      sp_CertWood.ParamByName('@InvoiceNo').AsInteger := fInternalInvNo;
       sp_CertWood.Active := true;
 
 //  Get data from KD_Certification proc.
-      sp_KD_Certification.ParamByName('InvoiceNo').AsInteger := fInternalInvNo;
+      sp_KD_Certification.ParamByName('@InvoiceNo').AsInteger := fInternalInvNo;
       sp_KD_Certification.Active := true;
 
       fDBReadComplete := true;
       result := true;
 
 //      Fill invoice with collected data
-
+      fInvoice.Get_InvoiceHeader;
+      fInvoiceHeader.InvoiceNumber := pmcInvNo;
+      fInvoiceHeader.Set_InvoiceDate(sp_Invoice.FieldByName('Invoicedate').AsString);
     finally
   if sp_Invoice.Active then
     sp_Invoice.Close;

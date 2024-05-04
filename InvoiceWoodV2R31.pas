@@ -1041,7 +1041,7 @@ type
 { IXMLInvoiceReference }
 
   IXMLInvoiceReference = interface(IXMLNode)
-    ['{491DBE2A-F120-4459-A957-38111F468EF7}']
+    ['{2900DB83-E00B-4EFA-8C1A-8E5D65F0F7CD}']
     { Property Accessors }
     function Get_InvoiceReferenceType: UnicodeString;
     function Get_AssignedBy: UnicodeString;
@@ -1055,7 +1055,7 @@ type
 { IXMLInvoiceReferenceList }
 
   IXMLInvoiceReferenceList = interface(IXMLNodeCollection)
-    ['{BABABC39-EB29-46F4-AFFA-8DDD3539E2D8}']
+    ['{4482F57B-9A83-44DE-AD43-1646CE3703BA}']
     { Methods & Properties }
     function Add: IXMLInvoiceReference;
     function Insert(const Index: Integer): IXMLInvoiceReference;

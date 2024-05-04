@@ -2,7 +2,7 @@ object Form1: TForm1
   Left = 0
   Top = 0
   Caption = 'Form1'
-  ClientHeight = 441
+  ClientHeight = 634
   ClientWidth = 825
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -12,6 +12,13 @@ object Form1: TForm1
   Font.Style = []
   OnCreate = FormCreate
   TextHeight = 15
+  object lblInvNo: TLabel
+    Left = 181
+    Top = 13
+    Width = 35
+    Height = 15
+    Caption = 'InvNo:'
+  end
   object btnCreateInvoiceXML: TButton
     Left = 24
     Top = 8
@@ -30,41 +37,54 @@ object Form1: TForm1
       'mmo1')
     TabOrder = 1
   end
-  object btnTest2: TButton
-    Left = 280
-    Top = 407
-    Width = 75
-    Height = 25
-    Caption = 'btnTest2'
-    TabOrder = 2
-    OnClick = btnTest2Click
-  end
   object btnGetInvoicenumbers: TButton
-    Left = 176
+    Left = 298
     Top = 8
     Width = 161
     Height = 25
-    Caption = 'btnGetInvoicenumbers'
-    TabOrder = 3
+    Caption = 'H'#228'mta faktura lista'
+    TabOrder = 2
     OnClick = btnGetInvoicenumbersClick
   end
   object cbb1: TComboBox
-    Left = 343
-    Top = 9
+    Left = 465
+    Top = 10
     Width = 145
     Height = 23
-    TabOrder = 4
-    Text = 'cbb1'
+    TabOrder = 3
+    Text = 'Fakturanr att v'#228'lja'
     OnChange = cbb1Change
   end
   object btnCreateXML: TButton
-    Left = 560
+    Left = 616
     Top = 8
     Width = 201
     Height = 25
-    Caption = 'Create XML for selected Invoice'
-    TabOrder = 5
+    Caption = 'Skapa XML f'#246'r vald faktura'
+    TabOrder = 4
     OnClick = btnCreateXMLClick
+  end
+  object dbgrd1: TDBGrid
+    Left = 64
+    Top = 480
+    Width = 697
+    Height = 120
+    DataSource = ds2
+    TabOrder = 5
+    TitleFont.Charset = DEFAULT_CHARSET
+    TitleFont.Color = clWindowText
+    TitleFont.Height = -12
+    TitleFont.Name = 'Segoe UI'
+    TitleFont.Style = []
+  end
+  object edtInvno: TEdit
+    Left = 222
+    Top = 10
+    Width = 70
+    Height = 23
+    TabOrder = 6
+    Text = 'edtInvno'
+    OnKeyPress = edtInvnoKeyPress
   end
   object FDQuery1: TFDQuery
     Connection = dmXMLInvoice.con1
@@ -90,5 +110,10 @@ object Form1: TForm1
     DataSet = dmXMLInvoice.qry_InternalFromInvno
     Left = 688
     Top = 72
+  end
+  object ds2: TDataSource
+    DataSet = dmXMLInvoice.sp_Invoice
+    Left = 672
+    Top = 440
   end
 end

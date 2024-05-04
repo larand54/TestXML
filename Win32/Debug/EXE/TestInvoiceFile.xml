@@ -5,15 +5,14 @@
     <InvoiceDate>
       <Date>
         <Year>2024</Year>
-        <Month>4</Month>
-        <Day>27</Day>
+        <Month>5</Month>
+        <Day>4</Day>
       </Date>
     </InvoiceDate>
     <InvoiceReference AssignedBy="seller" InvoiceReferenceType="LoadingOrderNo">17166</InvoiceReference>
     <InvoiceReference AssignedBy="seller" InvoiceReferenceType="Contract">F22/1291</InvoiceReference>
     <InvoiceReference AssignedBy="seller" InvoiceReferenceType="Delivery note">26871</InvoiceReference>
     <BillToParty>
-      <PartyIdentifier/>
       <PartyIdentifier PartyidentifierType="AssignedBySeller">498</PartyIdentifier>
       <PartyIdentifier PartyidentifierType="VATIdentificationNumber">556645-6215</PartyIdentifier>
       <NameAddress>
@@ -85,19 +84,159 @@
       <ProductGroupID>BOL1</ProductGroupID>
       <InvoiceWoodLineItem>
         <InvoiceLineNumber>1</InvoiceLineNumber>
+        <Product>
+          <ProductIdentifier Agency="Supplier" ProductIdentifierType="partnumber">100742</ProductIdentifier>
+          <ProductDescription>32X125(28X120) Klyvtrall, Furu, Hyvlat 4 runda hörn, IMP AB</ProductDescription>
+        </Product>
+        <Quantity QuantityType="Actual Volume">
+          <Value UOM="CubicMeter">10.25</Value>
+        </Quantity>
+        <InvoiceLineBaseAmountInformation>
+          <PriceDetails PriceQuantitybasis="Volume">
+            <PricePerUnit>
+              <CurrencyValue CurrencyType="EUR">10.25</CurrencyValue>
+              <Value UOM="CubicMeter">0.998</Value>
+            </PricePerUnit>
+          </PriceDetails>
+        </InvoiceLineBaseAmountInformation>
       </InvoiceWoodLineItem>
       <InvoiceWoodLineItem>
         <InvoiceLineNumber>2</InvoiceLineNumber>
+        <Product>
+          <ProductIdentifier Agency="Supplier" ProductIdentifierType="partnumber">100742</ProductIdentifier>
+          <ProductDescription>32X125(28X120) Klyvtrall, Furu, Hyvlat 4 runda hörn, IMP AB</ProductDescription>
+        </Product>
+        <Quantity QuantityType="Actual Volume">
+          <Value UOM="CubicMeter">10.25</Value>
+        </Quantity>
+        <InvoiceLineBaseAmountInformation>
+          <PriceDetails PriceQuantitybasis="Volume">
+            <PricePerUnit>
+              <CurrencyValue CurrencyType="EUR">10.25</CurrencyValue>
+              <Value UOM="CubicMeter">0.998</Value>
+            </PricePerUnit>
+          </PriceDetails>
+        </InvoiceLineBaseAmountInformation>
       </InvoiceWoodLineItem>
       <InvoiceWoodLineItem>
         <InvoiceLineNumber>3</InvoiceLineNumber>
+        <Product>
+          <ProductIdentifier Agency="Supplier" ProductIdentifierType="partnumber">100742</ProductIdentifier>
+          <ProductDescription>32X125(28X120) Klyvtrall, Furu, Hyvlat 4 runda hörn, IMP AB</ProductDescription>
+        </Product>
+        <Quantity QuantityType="Actual Volume">
+          <Value UOM="CubicMeter">10.25</Value>
+        </Quantity>
+        <InvoiceLineBaseAmountInformation>
+          <PriceDetails PriceQuantitybasis="Volume">
+            <PricePerUnit>
+              <CurrencyValue CurrencyType="EUR">10.25</CurrencyValue>
+              <Value UOM="CubicMeter">0.998</Value>
+            </PricePerUnit>
+          </PriceDetails>
+        </InvoiceLineBaseAmountInformation>
       </InvoiceWoodLineItem>
       <InvoiceWoodLineItem>
         <InvoiceLineNumber>4</InvoiceLineNumber>
+        <Product>
+          <ProductIdentifier Agency="Supplier" ProductIdentifierType="partnumber">100742</ProductIdentifier>
+          <ProductDescription>32X125(28X120) Klyvtrall, Furu, Hyvlat 4 runda hörn, IMP AB</ProductDescription>
+        </Product>
+        <Quantity QuantityType="Actual Volume">
+          <Value UOM="CubicMeter">10.25</Value>
+        </Quantity>
+        <InvoiceLineBaseAmountInformation>
+          <PriceDetails PriceQuantitybasis="Volume">
+            <PricePerUnit>
+              <CurrencyValue CurrencyType="EUR">10.25</CurrencyValue>
+              <Value UOM="CubicMeter">0.998</Value>
+            </PricePerUnit>
+          </PriceDetails>
+        </InvoiceLineBaseAmountInformation>
       </InvoiceWoodLineItem>
       <InvoiceWoodLineItem>
         <InvoiceLineNumber>5</InvoiceLineNumber>
+        <Product>
+          <ProductIdentifier Agency="Supplier" ProductIdentifierType="partnumber">100742</ProductIdentifier>
+          <ProductDescription>32X125(28X120) Klyvtrall, Furu, Hyvlat 4 runda hörn, IMP AB</ProductDescription>
+        </Product>
+        <Quantity QuantityType="Actual Volume">
+          <Value UOM="CubicMeter">10.25</Value>
+        </Quantity>
+        <InvoiceLineBaseAmountInformation>
+          <PriceDetails PriceQuantitybasis="Volume">
+            <PricePerUnit>
+              <CurrencyValue CurrencyType="EUR">10.25</CurrencyValue>
+              <Value UOM="CubicMeter">0.998</Value>
+            </PricePerUnit>
+          </PriceDetails>
+        </InvoiceLineBaseAmountInformation>
       </InvoiceWoodLineItem>
     </InvoiceProductGroup>
   </InvoiceShipment>
+  <InvoiceWoodSummary>
+    <TotalNumberOfLineItems>5</TotalNumberOfLineItems>
+    <TotalQuantity QuantityType="Volume">
+      <Value UOM="CubicMeter">4.99</Value>
+    </TotalQuantity>
+    <TotalQuantity QuantityType="Grossweight">
+      <Value UOM="Kilogram">2844.3</Value>
+    </TotalQuantity>
+    <LineItemSubTotal>
+      <CurrencyValue CurrencyType="EUR">51.1475</CurrencyValue>
+    </LineItemSubTotal>
+    <TotalAdjustments>
+      <CurrencyValue CurrencyType="EUR">0</CurrencyValue>
+    </TotalAdjustments>
+    <TotalTaxAmount>
+      <CurrencyValue CurrencyType="EUR">0</CurrencyValue>
+    </TotalTaxAmount>
+    <TotalFASAmount>
+      <CurrencyValue CurrencyType="EUR">0</CurrencyValue>
+    </TotalFASAmount>
+    <TotalAmount>
+      <CurrencyValue CurrencyType="EUR">0</CurrencyValue>
+    </TotalAmount>
+    <TermsOfPayment TermsbasisType="Invoicedate">
+      <TermsDescription>45 Dagar netto</TermsDescription>
+      <TermsBasisDate>
+        <Date>
+          <Year>2024</Year>
+          <Month>4</Month>
+          <Day>1</Day>
+        </Date>
+      </TermsBasisDate>
+      <TermsDiscountDueDate>
+        <Date>
+          <Year>2024</Year>
+          <Month>4</Month>
+          <Day>15</Day>
+        </Date>
+      </TermsDiscountDueDate>
+      <TermsNetDueDate>
+        <Date>
+          <Year>2024</Year>
+          <Month>5</Month>
+          <Day>15</Day>
+        </Date>
+      </TermsNetDueDate>
+    </TermsOfPayment>
+    <InvoiceWoodSummary>
+      <CustomsTotals>
+        <CustomsTariffCode>CustomsTariffCode</CustomsTariffCode>
+        <TotalQuantity QuantityType="Volume">
+          <Value UOM="CubicMeter">4.99</Value>
+        </TotalQuantity>
+        <InformationalQuantity QuantityType="ActualVolume">
+          <Value UOM="Kilogram">29.154075</Value>
+        </InformationalQuantity>
+        <InformationalQuantity QuantityType="Count">
+          <Value UOM="Package">2</Value>
+        </InformationalQuantity>
+        <InformationalQuantity QuantityType="Volume">
+          <Value UOM="CubicMeter">4.99</Value>
+        </InformationalQuantity>
+      </CustomsTotals>
+    </InvoiceWoodSummary>
+  </InvoiceWoodSummary>
 </InvoiceWood>

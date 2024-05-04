@@ -40,6 +40,7 @@ object dmXMLInvoice: TdmXMLInvoice
         Name = '@INVOICENO'
         DataType = ftInteger
         ParamType = ptInput
+        Value = 9885
       end>
   end
   object sp_ShipTo: TFDStoredProc
