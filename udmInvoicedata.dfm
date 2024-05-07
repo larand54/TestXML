@@ -17,6 +17,7 @@ object dmXMLInvoice: TdmXMLInvoice
       'Server=JME-SSD\SQLEXPRESS01'
       'DriverID=MSSQL')
     ConnectedStoredUsage = []
+    Connected = True
     LoginPrompt = False
     Left = 40
     Top = 32
@@ -46,7 +47,7 @@ object dmXMLInvoice: TdmXMLInvoice
   object sp_ShipTo: TFDStoredProc
     Connection = con1
     SchemaName = 'dbo'
-    StoredProcName = 'vis_shipto_FR'
+    StoredProcName = 'vis_shipto_XML'
     Left = 136
     Top = 160
     ParamData = <
@@ -55,7 +56,6 @@ object dmXMLInvoice: TdmXMLInvoice
         Name = '@RETURN_VALUE'
         DataType = ftInteger
         ParamType = ptResult
-        Value = 0
       end
       item
         Position = 2
