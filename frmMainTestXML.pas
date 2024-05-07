@@ -100,12 +100,12 @@ begin
 
 end;
 
-function doSaveXML(ClearEmpty: Boolean = False): Boolean;
+function doSaveXML(const pmcInvoice: IXMLInvoiceWood; pmcClearEmpty: Boolean = False): Boolean;
 begin
   Result := False;
-  if ClearEmpty then
-    DeleteEmptyNode(Inv);
-  Inv.OwnerDocument.SaveToFile(inv.OwnerDocument.FileName);
+  if pmcClearEmpty then
+    DeleteEmptyNode(pmcInvoice);
+  pmcInvoice.OwnerDocument.SaveToFile(pmcInvoice.OwnerDocument.FileName);
   Result := True;
 end;
 
@@ -129,22 +129,397 @@ begin
 end;
 
 procedure TForm1.btnCreateXMLClick(Sender: TObject);
-var
-  InvoiceData: ICMInvoice;
-  IH: ICMInvoiceHeader;
-begin
-  if inv = nil then
-  inv := NewInvoiceWood;
+  procedure SetMessageDate(aInv: IXMLInvoiceWood; MsgDate: TDateTime);
+  var
+    wY, wM, wD: word;
+
   begin
-    InvoiceData := TCMInvoice.create;
-    if not dmXMLInvoice.collectInvoiceData(edtInvNo.text, InvoiceData) then
-      TInvoiceException.RaiseDBError(9901, 'Can not retrieve InvoiceData');
+    DecodeDate(MsgDate, wY, wM, wD);
+    with aInv.InvoiceWoodHeader.InvoiceDate.Date do
+    begin
+      Year := IntToStr(wY);
+      Month := wM;
+      Day := wD;
+    end;
   end;
 
+
+  procedure setReference(const pmcInv: IXMLInvoiceWood; const pmcAssignedBy, pmcRefName, pmcReference: string);
+  var
+    Ref: IXMLInvoiceReference;
+  begin
+    Ref := pmcInv.InvoiceWoodHeader.InvoiceReference.Add;
+    Ref.SetAttributeNS('AssignedBy', '', pmcAssignedBy);
+    Ref.SetAttributeNS('InvoiceReferenceType', '', pmcRefName);
+    Ref.nodeValue := pmcReference;
+  end;
+
+//  procedure setBillToParty(const pmcInv: IXMLInvoiceWood; const pmcPartyAddr: ICMNameAddress);
+  procedure setBillToParty(const pmcInv: IXMLInvoiceWood; const pmcIH: ICMInvoiceHeader; const  pmcRefName, pmcReference: string);
+  var
+    btb: IXMLParty;
+    btbId: IXMLPartyIdentifier;
+    btbAd: IXMLNameAddress;
+  begin
+    btb := pmcInv.InvoiceWoodHeader.BillToParty;
+    btb.NameAddress.Name1 := btb.NameAddress.Name1;
+    btb.NameAddress.Name2 := btb.NameAddress.Name2;
+    btb.NameAddress.Name3 := btb.NameAddress.Name3;
+    btb.NameAddress.Address1 := btb.NameAddress.Address1;
+    btb.NameAddress.Address2 := btb.NameAddress.Address2;
+    btb.NameAddress.Address3 := btb.NameAddress.Address3;
+    btb.NameAddress.Address4 := btb.NameAddress.Address4;
+    btb.NameAddress.City := btb.NameAddress.City;
+    btb.NameAddress.County := btb.NameAddress.County;
+    btb.NameAddress.StateOrProvince := btb.NameAddress.StateOrProvince;
+//    btb.NameAddress.PostalCode := btb.NameAddress.PostalCode;
+//    btb.NameAddress.Country := btb.NameAddress.Country;
+    btbId := btb.PartyIdentifier.Add;
+    btbId.SetAttributeNS('PartyidentifierType','','AssignedBySeller');
+    btbId.nodeValue := pmcIH.CustomerNo;
+    btbId := btb.PartyIdentifier.Add;
+    btbId.SetAttributeNS('PartyidentifierType','','VATIdentificationNumber');
+    btbId.nodeValue := pmcIH.VATno;
+
+    btbAd := btb.NameAddress;
+(*
+      btbAd.Name1 := 'Byggmax Norge';
+      btbAd.Name2 := 'Peter Lyvestand';
+      btbAd.Address1 := 'Box 6063';
+      btbAd.PostalCode.Text := '171 06';
+      btbAd.City := 'Solna';
+      btbAd.Country.ISOCountryCode := 'FI';
+
+*)  end;
+{
+        <BillToParty>
+            <PartyIdentifier PartyIdentifierType="AssignedBySeller">100222</PartyIdentifier>
+            <PartyIdentifier PartyIdentifierType="VATIdentificationNumber">IT00549301208</PartyIdentifier>
+            <NameAddress>
+                <Name1>DE LEGNO</Name1>
+                <Address1>VIA DON LUIGI 10</Address1>
+                <City>MILANO</City>
+                <PostalCode>20026</PostalCode>
+                <Country ISOCountryCode="IT">IT</Country>
+            </NameAddress>
+        </BillToParty>
+}
+  procedure setSupplierParty(const pmcInv: IXMLInvoiceWood; const pmcAssignedBy, pmcRefName, pmcReference: string);
+  var
+    btb: IXMLParty;
+    btbId: IXMLPartyIdentifier;
+    btbAd: IXMLNameAddress;
+  begin
+    btb := pmcInv.InvoiceWoodHeader.SupplierParty;
+    btbId := btb.PartyIdentifier.Add;
+    btbId.SetAttributeNS('PartyidentifierType','','AssignedBySeller');
+    btbId.nodeValue :='498';
+    btbId := btb.PartyIdentifier.Add;
+    btbId.SetAttributeNS('PartyidentifierType','','VATIdentificationNumber');
+    btbId.nodeValue :='556645-6215';
+
+    btbAd := btb.NameAddress;
+    btbAd.Name1 := 'Byggmax Norge';
+    btbAd.Name2 := 'Peter Lyvestand';
+    btbAd.Address1 := 'Box 6063';
+    btbAd.PostalCode.Text := '171 06';
+    btbAd.City := 'Solna';
+    btbAd.Country.ISOCountryCode := 'FI';
+  end;
+
+  procedure setBuyerParty(const pmcInv: IXMLInvoiceWood; const pmcAssignedBy, pmcRefName, pmcReference: string);
+  var
+    btb: IXMLParty;
+    btbId: IXMLPartyIdentifier;
+    btbAd: IXMLNameAddress;
+  begin
+    btb := pmcInv.InvoiceWoodHeader.BuyerParty;
+    btbId := btb.PartyIdentifier.Add;
+    btbId.SetAttributeNS('PartyidentifierType','','AssignedBySeller');
+    btbId.nodeValue :='498';
+    btbId := btb.PartyIdentifier.Add;
+    btbId.SetAttributeNS('PartyidentifierType','','VATIdentificationNumber');
+    btbId.nodeValue :='556645-6215';
+
+    btbAd := btb.NameAddress;
+    btbAd.Name1 := 'Byggmax Norge';
+    btbAd.Name2 := 'Peter Lyvestand';
+    btbAd.Address1 := 'Box 6063';
+    btbAd.PostalCode.Text := '171 06';
+    btbAd.City := 'Solna';
+    btbAd.Country.ISOCountryCode := 'FI';
+  end;
+
+  procedure setShipmentCharacteristics(const pmcInv: IXMLInvoiceWood; const pmcAssignedBy, pmcRefName, pmcReference: string);
+  var
+    btb: IXMLParty;
+    btbId: IXMLPartyIdentifier;
+    btbAd: IXMLNameAddress;
+    ShipToChar: IXMLShipToCharacteristics;
+  begin
+    ShipToChar := pmcInv.InvoiceWoodHeader.ShipToCharacteristics;
+    ShipToChar.ShipToParty.SetAttributeNS('PartyType','','PlaceFinalDestination');
+    btb := pmcInv.InvoiceWoodHeader.ShipToCharacteristics.ShipToParty;
+    btbId := btb.PartyIdentifier.Add;
+    btbId.SetAttributeNS('PartyidentifierType','','AssignedBySeller');
+    btbId.nodeValue :='498';
+    btbId := btb.PartyIdentifier.Add;
+    btbId.SetAttributeNS('PartyidentifierType','','VATIdentificationNumber');
+    btbId.nodeValue :='556645-6215';
+
+    btbAd := btb.NameAddress;
+    btbAd.Name1 := 'Byggmax Norge';
+    btbAd.Name2 := 'Peter Lyvestand';
+    btbAd.Address1 := 'Box 6063';
+    btbAd.PostalCode.Text := '171 06';
+    btbAd.City := 'Solna';
+    btbAd.Country.ISOCountryCode := 'FI';
+    ShipToChar.TermsOfDelivery.IncotermsLocation.setAttributeNS('Incoterms','','CIP');
+    ShipToChar.TermsOfDelivery.IncotermsLocation.nodeValue := 'Oslo';
+  end;
+
+  procedure setSenderParty(const pmcInv: IXMLInvoiceWood; const pmcAssignedBy, pmcRefName, pmcReference: string);
+  var
+    btb: IXMLParty;
+    btbId: IXMLPartyIdentifier;
+    btbAd: IXMLNameAddress;
+  begin
+
+    btb := pmcInv.InvoiceWoodHeader.SenderParty;
+    btb.SetAttributeNS('PartyType','','Seller');
+    btbId := btb.PartyIdentifier.Add;
+    btbId.SetAttributeNS('PartyidentifierType','','AssignedBySeller');
+    btbId.nodeValue :='498';
+    btbId := btb.PartyIdentifier.Add;
+    btbId.SetAttributeNS('PartyidentifierType','','VATIdentificationNumber');
+    btbId.nodeValue :='556645-6215';
+
+    btbAd := btb.NameAddress;
+    btbAd.Name1 := 'Byggmax Norge';
+    btbAd.Name2 := 'Peter Lyvestand';
+    btbAd.Address1 := 'Box 6063';
+    btbAd.PostalCode.Text := '171 06';
+    btbAd.City := 'Solna';
+    btbAd.Country.SetAttributeNS('ISOCountrycode','','FI');
+    btbAd.Country.nodeValue :='SE';
+  end;
+
+procedure setInvoiceShipment(const pmcInv: IXMLInvoiceWood);
+var
+  i,k: integer;
+  pg: IXMLInvoiceProductGroup;
+  iwli: IXMLInvoiceWoodLineItem;
+  prid: IXMLProductIdentifier;
+  prdescr: IXMLProductDescription;
+  iqty: IXMLInformationalQuantity;
+  qty: IXMLQuantity;
+  qtyv: IXMLNode;
+  PriceDet: IXMLPriceDetails;
+  ppu: IXMLNode;
+  cv: IXMLNode;
+  tq: IXMLNode;
+  valuePerUnit: IXMLNode;
+  pgsum: IXMLProductGroupSummary;
+  iwsum: IXMLInvoiceWoodSummary;
+  list: IXMLNode;
+  listcv: IXMLNode;
+  listv: IXMLNode;
+  node, node1, date: IXMLNode;
+  ISH: IXMLInvoiceShipment;
+begin
+  inv := pmcInv;
+  ISH := inv.InvoiceShipment.Add;
+  ISH.ShipmentID.SetAttributeNS('ShipmentIDType','','LotIdentifier');
+  ISH.ShipmentID.NodeValue := 'SHID';
+  for i := 1 to 1 do begin             // ProductGroup(s)
+    pg := ISH.InvoiceProductGroup.Add;
+    pg.ProductGroupID.NodeValue := 'BOL'+intToStr(i);
+    k := 1;
+    while (k <= 5) do begin            // InvoiceLineItem(s)
+      iwli := pg.InvoiceWoodLineItem.Add;
+      iwli.InvoiceLineNumber := k;
+      prid := iwli.Product.ProductIdentifier.add;
+      prid.SetAttributeNS('Agency', '', 'Supplier');
+      prid.SetAttributeNS('ProductIdentifierType', '', 'partnumber');
+      prid.NodeValue := 100742; // productNo
+      prdescr := iwli.Product.ProductDescription.Add;
+      prdescr.NodeValue := '32X125(28X120) Klyvtrall, Furu, Hyvlat 4 runda hörn, IMP AB';
+
+      qty := iwli.Quantity;
+      qty.SetAttributeNS('QuantityType','','Actual Volume');
+      qtyv := qty.AddChild('Value');
+      qtyv.SetAttributeNS('UOM','', 'CubicMeter');
+      qtyv.NodeValue := 10.25;
+
+      PriceDet := iwli.InvoiceLineBaseAmountInformation.PriceDetails;
+      PriceDet.SetAttributeNS('PriceQuantitybasis', '', 'Volume');
+      ppu := PriceDet.AddChild('PricePerUnit');
+      cv := ppu.AddChild('CurrencyValue');
+      cv.SetAttributeNS('CurrencyType','', 'EUR');
+      cv.NodeValue := 10.25;
+
+      ValuePerUnit := ppu.AddChild('Value');
+      ValuePerUnit.SetAttributeNS('UOM','','CubicMeter');
+      ValuePerUnit.NodeValue := 0.998;
+      inc(k);
+    end;
+
+    iwsum := inv.InvoiceWoodSummary;
+    iwsum.TotalNumberOfLineItems := k-1;
+    // <TotalQuantity QuantityType="Volume">
+    tq := iwsum.AddChild('TotalQuantity');
+    tq.SetAttributeNS('QuantityType','','Volume');
+    qtyv := tq.AddChild('Value');
+    qtyv.SetAttributeNS('UOM','','CubicMeter');
+    qtyv.Nodevalue := 5*0.998;
+
+    // <TotalQuantity QuantityType="Grossweight">
+    tq := iwsum.AddChild('TotalQuantity');
+    tq.SetAttributeNS('QuantityType','','Grossweight');
+    qtyv := tq.AddChild('Value');
+    qtyv.SetAttributeNS('UOM','','Kilogram');
+    qtyv.Nodevalue := 5*0.998*0.57*1000;
+
+    // <LineItemSubTotal>
+    list := iwsum.AddChild('LineItemSubTotal');
+    listcv := list.AddChild('CurrencyValue');
+    listcv.SetAttributeNS('CurrencyType','','EUR');
+    listcv.NodeValue := 10.25*5*0.998;
+
+    // <TotalAdjustments>
+    node := iwsum.AddChild('TotalAdjustments');
+    node1 := node.AddChild('CurrencyValue');
+    node1.SetAttributeNS('CurrencyType','','EUR');
+    node1.NodeValue := 0.0;
+    // <TotalTaxAmount>
+    node := iwsum.AddChild('TotalTaxAmount');
+    node1 := node.AddChild('CurrencyValue');
+    node1.SetAttributeNS('CurrencyType','','EUR');
+    node1.NodeValue := 0.0;
+    // <TotalFASAmount>
+    node := iwsum.AddChild('TotalFASAmount');
+    node1 := node.AddChild('CurrencyValue');
+    node1.SetAttributeNS('CurrencyType','','EUR');
+    node1.NodeValue := 0.0;
+    // <TotalAmount>
+    node := iwsum.AddChild('TotalAmount');
+    node1 := node.AddChild('CurrencyValue');
+    node1.SetAttributeNS('CurrencyType','','EUR');
+    node1.NodeValue := 0.0;
+    // <TermsOfPayment>
+    node := iwsum.AddChild('TermsOfPayment');
+    node.SetAttributeNS('TermsbasisType','','Invoicedate');
+    node1 := node.AddChild('TermsDescription');
+    node1.NodeValue := '45 Dagar netto';
+    // TermsBasisDate
+    node1 := node.AddChild('TermsBasisDate');
+    date := node1.AddChild('Date');
+    node1 := date.AddChild('Year');
+    node1.NodeValue := '2024';
+    node1 := date.AddChild('Month');
+    node1.NodeValue := '4';
+    node1 := date.AddChild('Day');
+    node1.NodeValue := '1';
+    // <TermsDiscountDueDate>
+    node1 := node.AddChild('TermsDiscountDueDate');
+    date := node1.AddChild('Date');
+    node1 := date.AddChild('Year');
+    node1.NodeValue := '2024';
+    node1 := date.AddChild('Month');
+    node1.NodeValue := '4';
+    node1 := date.AddChild('Day');
+    node1.NodeValue := '15';
+    // <TermsNetDueDate>
+    node1 := node.AddChild('TermsNetDueDate');
+    date := node1.AddChild('Date');
+    node1 := date.AddChild('Year');
+    node1.NodeValue := '2024';
+    node1 := date.AddChild('Month');
+    node1.NodeValue := '5';
+    node1 := date.AddChild('Day');
+    node1.NodeValue := '15';
+
+    // <InvoiceWoodSummary>
+    node := iwsum.AddChild('InvoiceWoodSummary');
+    node := node.AddChild('CustomsTotals');
+    node1 := node.AddChild('CustomsTariffCode');
+    node1.NodeValue := 'CustomsTariffCode';
+
+    node1 := node.AddChild('TotalQuantity');
+    node1.SetAttributeNS('QuantityType','','Volume');
+    node1 := node1.AddChild('Value');
+    node1.SetAttributeNS('UOM','','CubicMeter');
+    node1.NodeValue := 5*0.998;
+
+    node1 := node.AddChild('InformationalQuantity');
+    node1.SetAttributeNS('QuantityType','','ActualVolume');
+    node1 := node1.AddChild('Value');
+    node1.SetAttributeNS('UOM','','Kilogram');
+    node1.NodeValue := 5*0.998*10.25*0.57;
+
+    node1 := node.AddChild('InformationalQuantity');
+    node1.SetAttributeNS('QuantityType','','Count');
+    node1 := node1.AddChild('Value');
+    node1.SetAttributeNS('UOM','','Package');
+    node1.NodeValue := 2;
+
+    node1 := node.AddChild('InformationalQuantity');
+    node1.SetAttributeNS('QuantityType','','Volume');
+    node1 := node1.AddChild('Value');
+    node1.SetAttributeNS('UOM','','CubicMeter');
+    node1.NodeValue := 5*0.998;
+  end;
+
+end;
+const
+  XML_Template = 'Invoice_%s.xml';
+var
+  inv: IXMLInvoiceWood;
+  invNo: TCM_XMLString;
+  InvoiceData: ICMInvoice;
+  IH: ICMInvoiceHeader;
+  SC: ICMShipToCharacteristics;
+  TD: ICMTermsOfDelivery;
+  XMLFile: string;
+begin
+  invNo := edtInvNo.text;
+  XMLFile := format(XML_Template, [invNo]);
+  if inv = nil then
+    inv := NewInvoiceWood;
+  inv.OwnerDocument.Encoding := 'utf-8';
+  inv.OwnerDocument.SaveToFile(XMLFile);
+  inv := LoadInvoiceWood(XMLFile);
+  inv.OwnerDocument.Options := inv.OwnerDocument.Options - [doAttrNull] + [doAutoSave] + [doNodeAutoIndent] + [doNodeAutoCreate];
+  InvoiceData := TCMInvoice.create;
+  if not dmXMLInvoice.collectInvoiceData(invNo, InvoiceData) then
+    TInvoiceException.RaiseDBError(9901, 'Can not retrieve InvoiceData');
+
+  inv.InvoiceType := InvoiceData.InvoiceType;
   IH := InvoiceData.Get_InvoiceHeader;
+  SC := IH.ShipToCharacteristics;
+  TD := SC.TermsOfDelivery;
   if IH.InvoiceNumber = '' then
     TInvoiceException.RaiseInvoiceHeader(2001, 'Could not get InvoiceNumber');
 
+  inv.OwnerDocument.Encoding := 'utf-8';
+  inv.OwnerDocument.SaveToFile(XMLFile);
+  inv := LoadInvoiceWood(XMLFile);
+  inv.OwnerDocument.Options := inv.OwnerDocument.Options - [doAttrNull] + [doAutoSave] + [doNodeAutoIndent] + [doNodeAutoCreate];
+  inv.InvoiceType := 'Invoice';
+  inv.InvoiceWoodHeader.InvoiceNumber := IH.InvoiceNumber;
+  SetMessageDate(inv, now);
+  SetReference(inv, 'seller', 'LoadingOrderNo', InvoiceData.Get_InvoiceHeader.LoadingOrderNo);
+  SetReference(inv, 'seller', 'Contract', InvoiceData.Get_InvoiceHeader.Contract);
+  SetReference(inv, 'seller', 'Delivery note', InvoiceData.Get_InvoiceHeader.LoadNo);
+
+  setBillToParty(inv, IH, '', '');
+  setSupplierParty(inv, '', '', '');
+  setBuyerParty(inv, '', '', '');
+  setShipmentCharacteristics(inv, '', '', '');
+  setSenderparty(inv, '', '', '');
+  setInvoiceShipment(inv);
+  doSaveXML(inv);
+  form1.mmo1.Lines.LoadFromFile(XMLFile);
 end;
 
 procedure TForm1.btnGetInvoicenumbersClick(Sender: TObject);
@@ -169,7 +544,7 @@ end;
 procedure TForm1.cbb1Change(Sender: TObject);
 begin
   cbb1.Text := cbb1.items[cbb1.ItemIndex];
-  edtInvno.Text
+  edtInvno.Text := intToStr(integer(cbb1.Items.Objects[cbb1.itemindex]));
 end;
 
 
@@ -378,7 +753,7 @@ var
     btbAd.Country.nodeValue :='SE';
   end;
 
-procedure setInvoiceShipment;
+procedure setInvoiceShipment(const pmcInv: IXMLInvoiceWood);
 var
   i,k: integer;
   pg: IXMLInvoiceProductGroup;
@@ -400,6 +775,7 @@ var
   listv: IXMLNode;
   node, node1, date: IXMLNode;
 begin
+  inv := pmcInv;
   ISH := inv.InvoiceShipment.Add;
   ISH.ShipmentID.SetAttributeNS('ShipmentIDType','','LotIdentifier');
   ISH.ShipmentID.NodeValue := 'SHID';
@@ -546,6 +922,7 @@ end;
 
 var
   InvoiceData: ICMInvoice;
+  inv: IXMLInvoiceWood;
 begin
   if inv = nil then
   inv := NewInvoiceWood;
@@ -566,8 +943,8 @@ begin
     setBuyerParty(Inv,'','','');
     setShipmentCharacteristics(Inv,'','','');
     setSenderparty(Inv,'','','');
-    setInvoiceShipment;
-    doSaveXML();
+    setInvoiceShipment(Inv);
+    doSaveXML(inv);
     form1.mmo1.Lines.LoadFromFile(XMLFile);
   end;
 end;

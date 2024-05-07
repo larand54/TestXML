@@ -26,6 +26,7 @@ type
   ICMInvoiceReference = interface;
   ICMInvoiceReferenceList = interface;
   ICMCountryOfConsumption = interface;
+  ICMTypedParty = interface;
   TCMS255List = TStrings;
 
   ICMInvoice = interface(IInvokable)
@@ -58,53 +59,68 @@ type
     function Get_InvoiceNumber: TCM_XMLString;
     function Get_InvoiceDate: TCM_XMLString;
     function Get_InvoiceReference: ICMInvoiceReferenceList;
-    function Get_BillToParty: ICMParty;
-    function Get_SupplierParty: ICMParty;
-    function Get_BuyerParty: ICMParty;
+    function Get_BillToParty: ICMTypedParty;
+    function Get_SupplierParty: ICMTypedParty;
+    function Get_BuyerParty: ICMTypedParty;
     function Get_ShipToCharacteristics: ICMShipToCharacteristics;
-    function Get_SenderParty: ICMParty;
+    function Get_SenderParty: ICMTypedParty;
     function Get_ReceiverParty: ICMPartyList;
     function Get_CountryOfOrigin: ICMCountryOfOrigin;
     function Get_CountryOfDestination: ICMCountryOfDestination;
     function Get_CountryOfConsumption: ICMCountryOfConsumption;
+    function Get_LoadingOrderNo: TCM_XMLString;
+    function Get_Contract: TCM_XMLString;
+    function Get_LoadNo: TCM_XMLString;
+    function Get_CustomerNo: TCM_XMLString;
+    function Get_VATNo: TCM_XMLString;
+    procedure Set_VATNo(Value: TCM_XMLString);
+    procedure Set_CustomerNo(Value: TCM_XMLString);
     procedure Set_InvoiceNumber(const pmcValue: TCM_XMLString);
     procedure Set_InvoiceDate(const pmcValue: TCM_XMLString);
     { Methods & Properties }
+    procedure Set_LoadingOrderNo(Value: TCM_XMLString);
+    procedure Set_Contract(Value: TCM_XMLString);
+    procedure Set_LoadNo(Value: TCM_XMLString);
+    procedure Set_BillToParty(Value: ICMTypedParty);
+    property LoadingOrderNo: TCM_XMLString read Get_LoadingOrderNo write Set_LoadingOrderNo;
+    property Contract: TCM_XMLString read Get_Contract write Set_Contract;
+    property LoadNo: TCM_XMLString read Get_LoadNo write Set_LoadNo;
     property InvoiceNumber: TCM_XMLString read Get_InvoiceNumber write Set_InvoiceNumber;
     property InvoiceDate: TCMInvoiceDate read Get_InvoiceDate;
     property InvoiceReference: ICMInvoiceReferenceList read Get_InvoiceReference;
-    property BillToParty: ICMParty read Get_BillToParty;
-    property SupplierParty: ICMParty read Get_SupplierParty;
-    property BuyerParty: ICMParty read Get_BuyerParty;
+    property BillToParty: ICMTypedParty read Get_BillToParty write Set_BillToParty;
+    property SupplierParty: ICMTypedParty read Get_SupplierParty;
+    property BuyerParty: ICMTypedParty read Get_BuyerParty;
     property ShipToCharacteristics: ICMShipToCharacteristics read Get_ShipToCharacteristics;
-    property SenderParty: ICMParty read Get_SenderParty;
+    property SenderParty: ICMTypedParty read Get_SenderParty;
     property ReceiverParty: ICMPartyList read Get_ReceiverParty;
     property CountryOfOrigin: ICMCountryOfOrigin read Get_CountryOfOrigin;
     property CountryOfDestination: ICMCountryOfDestination read Get_CountryOfDestination;
-
+    property CustomerNo: TCM_XMLString read Get_CustomerNo write Set_CustomerNo;
+    property VATNo: TCM_XMLString read Get_VATNo write Set_VATNo;
   end;
 
-{ IXMLInvoiceReference }
+{ ICMInvoiceReference }
 
   ICMInvoiceReference = interface(IInvokable)
     ['{491DBE2A-F120-4459-A957-38111F468EF7}']
     { Property Accessors }
-    function Get_InvoiceReferenceType: UnicodeString;
-    function Get_AssignedBy: UnicodeString;
-    procedure Set_InvoiceReferenceType(Value: UnicodeString);
-    procedure Set_AssignedBy(Value: UnicodeString);
+    function Get_InvoiceReferenceType: TCM_XMLString;
+    function Get_AssignedBy: TCM_XMLString;
+    procedure Set_InvoiceReferenceType(Value: TCM_XMLString);
+    procedure Set_AssignedBy(Value: TCM_XMLString);
     { Methods & Properties }
-    property InvoiceReferenceType: UnicodeString read Get_InvoiceReferenceType write Set_InvoiceReferenceType;
-    property AssignedBy: UnicodeString read Get_AssignedBy write Set_AssignedBy;
+    property InvoiceReferenceType: TCM_XMLString read Get_InvoiceReferenceType write Set_InvoiceReferenceType;
+    property AssignedBy: TCM_XMLString read Get_AssignedBy write Set_AssignedBy;
   end;
 
-{ IXMLInvoiceReferenceList }
+{ ICMInvoiceReferenceList }
 
   ICMInvoiceReferenceList = interface(IInvokable)
     ['{BABABC39-EB29-46F4-AFFA-8DDD3539E2D8}']
     { Methods & Properties }
     function Add: ICMInvoiceReference;
-    function Insert(const Index: Integer): IXMLInvoiceReference;
+    function Insert(const Index: Integer): ICMInvoiceReference;
 
     function Get_Item(Index: Integer): ICMInvoiceReference;
     property Items[Index: Integer]: ICMInvoiceReference read Get_Item; default;
@@ -147,62 +163,70 @@ type
   ICMDateBasis = interface(IInvokable)
     ['{39EA7A5C-E2AB-4EF8-A784-A68FA50EBFEB}']
   end;
+  ICMShipmentMethodOfPayment = interface(IInvokable)
+    ['{7CC597C6-1715-41A6-A876-B196A81784F9}']
+  end;
+{ ICMTermsOfDelivery }
 
-{ IXMLNameAddress }
+  ICMTermsOfDelivery = interface(IInvokable)
+    ['{C4E3FCEA-A8B4-4F8B-8EB3-954CE896DEEB}']
+    { Property Accessors }
+    (*
+    function Get_IncotermsLocation: ICMIncotermsLocation;
+    function Get_ShipmentMethodOfPayment: ICMShipmentMethodOfPayment;
+    function Get_FreightPayableAt: UnicodeString;
+    function Get_ServiceLevel: ICMServiceLevelList;
+    procedure Set_FreightPayableAt(Value: UnicodeString);
+    { Methods & Properties }
+    property IncotermsLocation: ICMIncotermsLocation read Get_IncotermsLocation;
+    property ShipmentMethodOfPayment: ICMShipmentMethodOfPayment read Get_ShipmentMethodOfPayment;
+    property FreightPayableAt: UnicodeString read Get_FreightPayableAt write Set_FreightPayableAt;
+    property ServiceLevel: ICMServiceLevelList read Get_ServiceLevel;
+    *)
+    function Get_AdditionalText: TCM_XMLString;
+    function Get_ShipmentMethodOfPayment: ICMShipmentMethodOfPayment;
+    procedure Set_AdditionalText(Value: TCM_XMLString);
+    property ShipmentMethodOfPayment: ICMShipmentMethodOfPayment read Get_ShipmentMethodOfPayment;
+    property AdditionalText: TCM_XMLString read Get_AdditionalText write Set_AdditionalText;
+  end;
+
+{ ICMNameAddress }
 
   ICMNameAddress = interface
     ['{969DE82C-A366-43D1-8789-AF81F9FEFFFC}']
     { Property Accessors }
-//    function Get_CommunicationRole: UnicodeString;
-//    function Get_AddressRoleType: UnicodeString;
     function Get_Name1: TCM_XMLString;
-//    function Get_Name2: UnicodeString;
-//    function Get_Name3: UnicodeString;
-//    function Get_OrganisationUnit: IXMLOrganisationUnit;
-    function Get_Address1: TCMAddress;
-    function Get_Address2: TCMAddress;
-    function Get_Address3: TCMAddress;
-//    function Get_Address4: UnicodeString;
-    function Get_City: TCMCity;
-    function Get_County: TCMCounty;
-    function Get_StateOrProvince: TCMState;
-    function Get_PostalCode: TCMPostalCode;
-    function Get_Country: TCMCountry;
-//    function Get_GPSCoordinates: IXMLGPSCoordinates;
-//    function Get_MapCoordinates: IXMLMapCoordinatesList;
-//    procedure Set_CommunicationRole(Value: UnicodeString);
-//    procedure Set_AddressRoleType(Value: UnicodeString);
-    procedure Set_Name1(const pcmValue: TCMName);
-//    procedure Set_Name2(Value: UnicodeString);
-//    procedure Set_Name3(Value: UnicodeString);
-    procedure Set_Address1(const pcmValue: TCMAddress);
-    procedure Set_Address2(const pcmValue: TCMAddress);
-    procedure Set_Address3(const pcmValue: TCMAddress);
-//    procedure Set_Address4(Value: UnicodeString);
-    procedure Set_City(const pcmValue: TCMCity);
-    procedure Set_County(const pcmValue: TCMCounty);
-    procedure Set_StateOrProvince(const pcmValue: TCMState);
+    function Get_Address1: TCM_XMLString;
+    function Get_Address2: TCM_XMLString;
+    function Get_Address3: TCM_XMLString;
+    function Get_City: TCM_XMLString;
+    function Get_County: TCM_XMLString;
+    function Get_StateOrProvince: TCM_XMLString;
+    function Get_PostalCode: TCM_XMLString;
+    function Get_Country: TCM_XMLString;
+    procedure Set_Name1(const pcmValue: TCM_XMLString);
+    procedure Set_Address1(const pcmValue: TCM_XMLString);
+    procedure Set_Address2(const pcmValue: TCM_XMLString);
+    procedure Set_Address3(const pcmValue: TCM_XMLString);
+    procedure Set_City(const pcmValue: TCM_XMLString);
+    procedure Set_County(const pcmValue: TCM_XMLString);
+    procedure Set_StateOrProvince(const pcmValue: TCM_XMLString);
+    procedure Set_Country(const pcmValue: TCM_XMLString);
+    procedure Set_PostalCode(const pcmValue: TCM_XMLString);
+
     { Methods & Properties }
-//    property CommunicationRole: UnicodeString read Get_CommunicationRole write Set_CommunicationRole;
-//    property AddressRoleType: UnicodeString read Get_AddressRoleType write Set_AddressRoleType;
-    property Name1: TCMName read Get_Name1 write Set_Name1;
-//    property Name2: UnicodeString read Get_Name2 write Set_Name2;
-//    property Name3: UnicodeString read Get_Name3 write Set_Name3;
-//    property OrganisationUnit: IXMLOrganisationUnit read Get_OrganisationUnit;
-    property Address1: TCMAddress read Get_Address1 write Set_Address1;
-    property Address2: TCMAddress read Get_Address2 write Set_Address2;
-    property Address3: TCMAddress read Get_Address3 write Set_Address3;
-//    property Address4: UnicodeString read Get_Address4 write Set_Address4;
-    property City: TCMCity read Get_City write Set_City;
-    property County: TCMCounty read Get_County write Set_County;
-    property StateOrProvince: TCMState read Get_StateOrProvince write Set_StateOrProvince;
-    property PostalCode: TCMPostalCode read Get_PostalCode;
-    property Country: TCMCountry read Get_Country;
-//    property GPSCoordinates: IXMLGPSCoordinates read Get_GPSCoordinates;
-//    property MapCoordinates: IXMLMapCoordinatesList read Get_MapCoordinates;
+    property Name1: TCM_XMLString read Get_Name1 write Set_Name1;
+    property Address1: TCM_XMLString read Get_Address1 write Set_Address1;
+    property Address2: TCM_XMLString read Get_Address2 write Set_Address2;
+    property Address3: TCM_XMLString read Get_Address3 write Set_Address3;
+    property City: TCM_XMLString read Get_City write Set_City;
+    property County: TCM_XMLString read Get_County write Set_County;
+    property StateOrProvince: TCM_XMLString read Get_StateOrProvince write Set_StateOrProvince;
+    property PostalCode: TCM_XMLString read Get_PostalCode write set_PostalCode;
+    property Country: TCM_XMLString read Get_Country write set_country;
   end;
 
-{ IXMLCountryOfOrigin }
+{ ICMCountryOfOrigin }
 
   ICMCountryOfOrigin = interface(IInvokable)
     ['{FB045998-AB4D-460A-A813-B0423AB848E7}']
@@ -212,7 +236,7 @@ type
     property Country: ICMCountry read Get_Country;
   end;
 
-{ IXMLCountryOfDestination }
+{ ICMCountryOfDestination }
 
   ICMCountryOfDestination = interface(IInvokable)
     ['{C76085B9-D190-425F-A0C6-7AA3B7FD9D58}']
@@ -222,45 +246,63 @@ type
     property Country: ICMCountry read Get_Country;
   end;
 
-{ IXMLCountry }
+{ ICMCountry }
 
   ICMCountry = interface(IInvokable)
     ['{BE5FEAC4-13AA-4BDD-AA15-60FE2D135F7A}']
     { Property Accessors }
-    function Get_ISOCountryCode: UnicodeString;
-    function Get_ISOCountryCodeAlpha3: UnicodeString;
-    function Get_ISOCountryCodeNumeric: UnicodeString;
-    procedure Set_ISOCountryCode(Value: UnicodeString);
-    procedure Set_ISOCountryCodeAlpha3(Value: UnicodeString);
-    procedure Set_ISOCountryCodeNumeric(Value: UnicodeString);
+    function Get_ISOCountryCode: TCM_XMLString;
+    function Get_ISOCountryCodeAlpha3: TCM_XMLString;
+    function Get_ISOCountryCodeNumeric: TCM_XMLString;
+    procedure Set_ISOCountryCode(Value: TCM_XMLString);
+    procedure Set_ISOCountryCodeAlpha3(Value: TCM_XMLString);
+    procedure Set_ISOCountryCodeNumeric(Value: TCM_XMLString);
     { Methods & Properties }
-    property ISOCountryCode: UnicodeString read Get_ISOCountryCode write Set_ISOCountryCode;
-    property ISOCountryCodeAlpha3: UnicodeString read Get_ISOCountryCodeAlpha3 write Set_ISOCountryCodeAlpha3;
-    property ISOCountryCodeNumeric: UnicodeString read Get_ISOCountryCodeNumeric write Set_ISOCountryCodeNumeric;
+    property ISOCountryCode: TCM_XMLString read Get_ISOCountryCode write Set_ISOCountryCode;
+    property ISOCountryCodeAlpha3: TCM_XMLString read Get_ISOCountryCodeAlpha3 write Set_ISOCountryCodeAlpha3;
+    property ISOCountryCodeNumeric: TCM_XMLString read Get_ISOCountryCodeNumeric write Set_ISOCountryCodeNumeric;
   end;
 
   ICMCountryOfConsumption = interface(IInvokable)
   ['{1318B23C-66F5-44E8-8956-0962292E90C8}']
   end;
 
-{ IXMLShipToCharacteristics }
+{ ICMShipToCharacteristics }
 
   ICMShipToCharacteristics = interface(IInvokable)
-    ['{9A494238-9B35-45FA-BC05-44666A28C218}']
+    ['{01D7E060-33F6-4AB5-9741-20E86463CAAB}']
     { Property Accessors }
-    function Get_ShipToParty: IXMLTypedParty;
-    function Get_SupplyPoint: IXMLSupplyPointList;
-    function Get_LocationCode: IXMLLocationCode;
-    function Get_TermsOfDelivery: IXMLTermsOfDelivery;
-    function Get_DeliveryRouteCode: IXMLDeliveryRouteCode;
+    function Get_ShipToParty: ICMTypedParty;
+//    function Get_SupplyPoint: ICMSupplyPointList;
+//    function Get_LocationCode: ICMLocationCode;
+    function Get_TermsOfDelivery: ICMTermsOfDelivery;
+    procedure Set_TermsOfDelivery(Value: ICMTermsOfDelivery);
+//    function Get_DeliveryRouteCode: ICMDeliveryRouteCode;
     { Methods & Properties }
-    property ShipToParty: IXMLTypedParty read Get_ShipToParty;
-    property SupplyPoint: IXMLSupplyPointList read Get_SupplyPoint;
-    property LocationCode: IXMLLocationCode read Get_LocationCode;
-    property TermsOfDelivery: IXMLTermsOfDelivery read Get_TermsOfDelivery;
-    property DeliveryRouteCode: IXMLDeliveryRouteCode read Get_DeliveryRouteCode;
+    property ShipToParty: ICMTypedParty read Get_ShipToParty;
+//    property SupplyPoint: ICMSupplyPointList read Get_SupplyPoint;
+//    property LocationCode: ICMLocationCode read Get_LocationCode;
+    property TermsOfDelivery: ICMTermsOfDelivery read Get_TermsOfDelivery  write set_TermsOfDelivery;
+//    property DeliveryRouteCode: ICMDeliveryRouteCode read Get_DeliveryRouteCode;
   end;
 
+{ ICMTypedParty }
+
+  ICMTypedParty = interface(ICMParty)
+    ['{F0A5C4DE-1AD1-4B8C-80CB-C719A46B0A07}']
+    { Property Accessors }
+    function Get_PartyType: TCM_XMLString;
+    procedure Set_PartyType(Value: TCM_XMLString);
+    { Methods & Properties }
+    property PartyType: TCM_XMLString read Get_PartyType write Set_PartyType;
+  end;
+
+(*
+    ICMBillToParty = interface(ICMTypedParty)
+      ['{4657D20A-9A7A-4BD7-A515-1C11771BBCFD}']
+    end;
+
+*)
   (*
     ICMGetInvoiceData = interface(IInvokable)
       function getBillTo: TCMBillTo;

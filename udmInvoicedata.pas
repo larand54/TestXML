@@ -56,6 +56,8 @@ var
 implementation
 uses
   uWS_Utils
+  , strUtils
+  , system.types
 //  , vcl.dialogs
   , uInvoiceException
 ;
@@ -64,9 +66,60 @@ uses
 {$R *.dfm}
 
 function TdmXMLInvoice.collectInvoiceData(const pmcInvNo: string; const pmcInvoice: ICMInvoice): boolean;
+
+  function ParseAddress(const pmcAddress: string): ICMNameAddress;
+  var
+    sArr: TStringDynArray;
+    count: integer;
+    s: string;
+  const
+    delim = #13;
+  begin
+    sArr := SplitString(pmcAddress, delim);
+    count := length(sArr);
+    if count < 6 then
+      TInvoiceException.RaiseInvoiceHeader(count,'Not enough items in address string - should be 6');
+    result := TCMAddressInfo.Create;
+    result.Address1 := sArr[1];
+    result.Address2 := sArr[2];
+    result.Address3 := sArr[3];
+    result.PostalCode := sArr[4];
+    result.StateOrProvince := sArr[5];
+  end;
+
+  function getShipToAddress(const pmcIntInvNo: integer): ICMNameAddress;
+  begin
+    result := TCMAddressInfo.create;
+    result.Name1 := sp_ShipTo.FieldByName('AddressName').AsString;
+    result.Address1 := sp_ShipTo.FieldByName('AddressLine1').AsString;
+    result.Address2 := sp_ShipTo.FieldByName('AddressLine2').AsString;
+    result.Address3 := sp_ShipTo.FieldByName('AddressLine3').AsString;
+    result.PostalCode := sp_ShipTo.FieldByName('PostalCode').AsString;
+    result.StateOrProvince := sp_ShipTo.FieldByName('StateOrProvince').AsString;
+    result.City := sp_ShipTo.FieldByName('CityName').AsString;
+    result.Country := sp_ShipTo.FieldByName('ISOCountryCode').AsString;
+  end;
+
+    function getBillToparty(const pmcIntInvNo: integer): ICMNameAddress;
+  begin
+    result := TCMAddressInfo.create;
+    result.Name1 := sp_Invoice.FieldByName('AddressName').AsString;
+    result.Address1 := sp_Invoice.FieldByName('AddressLine1').AsString;
+    result.Address2 := sp_Invoice.FieldByName('AddressLine2').AsString;
+    result.Address3 := sp_Invoice.FieldByName('AddressLine3').AsString;
+    result.PostalCode := sp_Invoice.FieldByName('PostalCode').AsString;
+    result.StateOrProvince := sp_Invoice.FieldByName('StateOrProvince').AsString;
+    result.City := sp_Invoice.FieldByName('CustomerCityName').AsString;
+    result.Country := sp_Invoice.FieldByName('ISOCountryCode').AsString;
+  end;
+
 var
   intInvNo: integer;
   invHead: TCMInvoiceHeader;
+  adr: ICMNameAddress;
+  TD: ICMTermsOfDelivery;
+  BTP: TCMBillToParty;
+  s: string;
 begin
   fInvoice := pmcInvoice;
   fDBReadComplete := false;
@@ -92,6 +145,7 @@ begin
 //  Get Data From invoice stored procedure
       sp_Invoice.ParamByName('@InvoiceNo').AsInteger := fInternalInvNo;
       sp_Invoice.Active := true;
+      sp_invoice.first;
 
 //  Get data from ShipTo proc.
       sp_ShipTo.ParamByName('@InvoiceNo').AsInteger := fInternalInvNo;
@@ -113,9 +167,32 @@ begin
       result := true;
 
 //      Fill invoice with collected data
-      fInvoice.Get_InvoiceHeader;
+      fInvoiceheader := fInvoice.Get_InvoiceHeader;
       fInvoiceHeader.InvoiceNumber := pmcInvNo;
-      fInvoiceHeader.Set_InvoiceDate(sp_Invoice.FieldByName('Invoicedate').AsString);
+      fInvoiceHeader.Set_InvoiceDate(sp_Invoice.FieldByName('INV_DATE').AsString);
+      fInvoiceHeader.LoadingOrderNo := sp_Invoice.FieldByName('ShippingPlanNo').AsString;
+      fInvoiceHeader.Contract := sp_Invoice.FieldByName('OrderNoText').AsString;
+      fInvoiceHeader.LoadNo := sp_InvoicedLoad.FieldByName('LoadNo').AsString;
+      fInvoiceHeader.CustomerNo := sp_Invoice.FieldByName('KundNr').AsString;
+      fInvoiceHeader.VATNo := sp_Invoice.FieldByName('VATno').AsString;
+      adr := getBillToParty(fInternalInvNo);
+      BTP := TCMBillToParty.create(sp_invoice.FieldByName('CustomerName').AsString, adr );
+      s := BTP.Address.Name1;
+//      TD.AdditionalText := BTP.Address.Address1;
+      fInvoiceHeader.BillToParty := BTP;
+
+      adr := getShipToAddress(fInternalInvNo);
+
+      TD := fInvoiceheader.ShipToCharacteristics.TermsOfDelivery;
+      TD.AdditionalText := 'Hejheja';
+      fInvoiceHeader.ShipToCharacteristics.TermsOfDelivery := TD;
+//      TermsOfDelivery;//ShipToParty.fAddress.Name1 := adr.Name1;
+//      fInvoiceHeader.InvoiceReference :=
+//      fInvoiceHeader.(sp_Invoice.FieldByName('').AsString);)
+      sp_invoice.next;
+      while not sp_invoice.Eof do begin
+        sp_invoice.next;
+      end;
     finally
   if sp_Invoice.Active then
     sp_Invoice.Close;
