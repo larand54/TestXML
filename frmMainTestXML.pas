@@ -162,48 +162,23 @@ procedure TForm1.btnCreateXMLClick(Sender: TObject);
     btbAd: IXMLNameAddress;
   begin
     btb := pmcInv.InvoiceWoodHeader.BillToParty;
-    btb.NameAddress.Name1 := btb.NameAddress.Name1;
-    btb.NameAddress.Name2 := btb.NameAddress.Name2;
-    btb.NameAddress.Name3 := btb.NameAddress.Name3;
-    btb.NameAddress.Address1 := btb.NameAddress.Address1;
-    btb.NameAddress.Address2 := btb.NameAddress.Address2;
-    btb.NameAddress.Address3 := btb.NameAddress.Address3;
-    btb.NameAddress.Address4 := btb.NameAddress.Address4;
-    btb.NameAddress.City := btb.NameAddress.City;
-    btb.NameAddress.County := btb.NameAddress.County;
-    btb.NameAddress.StateOrProvince := btb.NameAddress.StateOrProvince;
-//    btb.NameAddress.PostalCode := btb.NameAddress.PostalCode;
-//    btb.NameAddress.Country := btb.NameAddress.Country;
+    btb.NameAddress.Name1 := pmcIH.BillToParty.Get_Address.Name1;
+    btb.NameAddress.Address1 := pmcIH.BillToParty.Get_Address.Address1;
+    btb.NameAddress.Address2 := pmcIH.BillToParty.Get_Address.Address2;
+    btb.NameAddress.Address3 := pmcIH.BillToParty.Get_Address.Address3;
+    btb.NameAddress.City := pmcIH.BillToParty.Get_Address.City;
+    btb.NameAddress.County := pmcIH.BillToParty.Get_Address.County;
+    btb.NameAddress.StateOrProvince := pmcIH.BillToParty.Get_Address.StateOrProvince;
+    btb.NameAddress.PostalCode.text := pmcIH.BillToParty.Get_Address.PostalCode;
+    btb.NameAddress.Country.Text := pmcIH.BillToParty.Get_Address.country;
     btbId := btb.PartyIdentifier.Add;
     btbId.SetAttributeNS('PartyidentifierType','','AssignedBySeller');
     btbId.nodeValue := pmcIH.CustomerNo;
     btbId := btb.PartyIdentifier.Add;
     btbId.SetAttributeNS('PartyidentifierType','','VATIdentificationNumber');
-    btbId.nodeValue := pmcIH.VATno;
+    btbId.nodeValue := pmcIH.BillToParty.Get_VATid;
+  end;
 
-    btbAd := btb.NameAddress;
-(*
-      btbAd.Name1 := 'Byggmax Norge';
-      btbAd.Name2 := 'Peter Lyvestand';
-      btbAd.Address1 := 'Box 6063';
-      btbAd.PostalCode.Text := '171 06';
-      btbAd.City := 'Solna';
-      btbAd.Country.ISOCountryCode := 'FI';
-
-*)  end;
-{
-        <BillToParty>
-            <PartyIdentifier PartyIdentifierType="AssignedBySeller">100222</PartyIdentifier>
-            <PartyIdentifier PartyIdentifierType="VATIdentificationNumber">IT00549301208</PartyIdentifier>
-            <NameAddress>
-                <Name1>DE LEGNO</Name1>
-                <Address1>VIA DON LUIGI 10</Address1>
-                <City>MILANO</City>
-                <PostalCode>20026</PostalCode>
-                <Country ISOCountryCode="IT">IT</Country>
-            </NameAddress>
-        </BillToParty>
-}
   procedure setSupplierParty(const pmcInv: IXMLInvoiceWood; const pmcAssignedBy, pmcRefName, pmcReference: string);
   var
     btb: IXMLParty;

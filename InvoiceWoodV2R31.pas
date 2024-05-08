@@ -1155,6 +1155,7 @@ type
     procedure Set_City(Value: UnicodeString);
     procedure Set_County(Value: UnicodeString);
     procedure Set_StateOrProvince(Value: UnicodeString);
+    procedure Set_PostalCode(Value: IXMLPostalCode);
     { Methods & Properties }
     property CommunicationRole: UnicodeString read Get_CommunicationRole write Set_CommunicationRole;
     property AddressRoleType: UnicodeString read Get_AddressRoleType write Set_AddressRoleType;
@@ -1169,7 +1170,7 @@ type
     property City: UnicodeString read Get_City write Set_City;
     property County: UnicodeString read Get_County write Set_County;
     property StateOrProvince: UnicodeString read Get_StateOrProvince write Set_StateOrProvince;
-    property PostalCode: IXMLPostalCode read Get_PostalCode;
+    property PostalCode: IXMLPostalCode read Get_PostalCode write Set_PostalCode;
     property Country: IXMLCountry read Get_Country;
     property GPSCoordinates: IXMLGPSCoordinates read Get_GPSCoordinates;
     property MapCoordinates: IXMLMapCoordinatesList read Get_MapCoordinates;
@@ -15505,6 +15506,7 @@ type
     procedure Set_City(Value: UnicodeString);
     procedure Set_County(Value: UnicodeString);
     procedure Set_StateOrProvince(Value: UnicodeString);
+    procedure Set_PostalCode(Value: IXMLPostalCode);
   public
     procedure AfterConstruction; override;
   end;
@@ -27698,6 +27700,11 @@ end;
 procedure TXMLNameAddress.Set_Name3(Value: UnicodeString);
 begin
   ChildNodes['Name3'].NodeValue := Value;
+end;
+
+procedure TXMLNameAddress.Set_PostalCode(Value: IXMLPostalCode);
+begin
+  ChildNodes['PostalCode'].NodeValue := Value;
 end;
 
 function TXMLNameAddress.Get_OrganisationUnit: IXMLOrganisationUnit;

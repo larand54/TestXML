@@ -17,6 +17,7 @@ type
   ICMInvoiceShipmentList = interface;
   ICMInvoiceSummary = interface;
   ICMMonetaryAdjustmentList = interface;
+  ICMNameAddress = interface;
   ICMDateBasis = interface;
   ICMParty = interface;
   ICMPartyList = interface;
@@ -150,6 +151,10 @@ type
 
   ICMParty = interface(IInvokable)
     ['{7EFB8784-F935-480C-A388-D5013ED16A80}']
+      function Get_VATid: TCM_XMLString;
+      procedure Set_VATid(Value: TCM_XMLString);
+      function Get_Address: ICMNameAddress;
+      procedure Set_Address(Value: ICMNameAddress);
   end;
 
   ICMPartyList = interface(IInvokable)

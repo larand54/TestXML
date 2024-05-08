@@ -67,11 +67,17 @@ TCMParty = class(TInterfacedObject, ICMParty)
     private
       fName: string;
       fAddress: ICMNameAddress;
+      fVATIdentificationNo: TCM_XMLString;
     protected
+      function Get_Address: ICMNameAddress;
+      procedure Set_Address(Value: ICMNameAddress);
+      function Get_VATid: TCM_XMLString;
+      procedure Set_VATid(Value: TCM_XMLString);
     public
       constructor create(const pmcName: string; const pmcAddress: ICMNameAddress);
       property Name: string read fName;
-      property Address: ICMNameAddress read fAddress write fAddress;
+      property Address: ICMNameAddress read Get_Address write Set_Address;
+      property VATid: TCM_XMLString read Get_VATId write SET_VATid;
   end;
 
 TCMTypedParty = class(TCMParty, ICMTypedParty)
@@ -261,6 +267,26 @@ begin
   fAddress := pmcAddress;
 end;
 
+
+function TCMParty.Get_Address: ICMNameAddress;
+begin
+  result := fAddress;
+end;
+
+function TCMParty.Get_VATid: TCM_XMLString;
+begin
+  result := fVATIdentificationNo;
+end;
+
+procedure TCMParty.Set_Address(Value: ICMNameAddress);
+begin
+  fAddress := Value;
+end;
+
+procedure TCMParty.Set_VATid(Value: TCM_XMLString);
+begin
+  fVATIdentificationNo := Value;
+end;
 
 { TCMInvoice }
 

@@ -100,7 +100,7 @@ function TdmXMLInvoice.collectInvoiceData(const pmcInvNo: string; const pmcInvoi
     result.Country := sp_ShipTo.FieldByName('ISOCountryCode').AsString;
   end;
 
-    function getBillToparty(const pmcIntInvNo: integer): ICMNameAddress;
+    function getBillToAddress(const pmcIntInvNo: integer): ICMNameAddress;
   begin
     result := TCMAddressInfo.create;
     result.Name1 := sp_Invoice.FieldByName('AddressName').AsString;
@@ -174,13 +174,10 @@ begin
       fInvoiceHeader.Contract := sp_Invoice.FieldByName('OrderNoText').AsString;
       fInvoiceHeader.LoadNo := sp_InvoicedLoad.FieldByName('LoadNo').AsString;
       fInvoiceHeader.CustomerNo := sp_Invoice.FieldByName('KundNr').AsString;
-      fInvoiceHeader.VATNo := sp_Invoice.FieldByName('VATno').AsString;
-      adr := getBillToParty(fInternalInvNo);
+      adr := getBillToAddress(fInternalInvNo);
       BTP := TCMBillToParty.create(sp_invoice.FieldByName('CustomerName').AsString, adr );
-      s := BTP.Address.Name1;
-//      TD.AdditionalText := BTP.Address.Address1;
+      BTP.VATid := sp_Invoice.FieldByName('VATno').AsString;
       fInvoiceHeader.BillToParty := BTP;
-
       adr := getShipToAddress(fInternalInvNo);
 
       TD := fInvoiceheader.ShipToCharacteristics.TermsOfDelivery;
