@@ -155,13 +155,18 @@ procedure TForm1.btnCreateXMLClick(Sender: TObject);
   end;
 
 //  procedure setBillToParty(const pmcInv: IXMLInvoiceWood; const pmcPartyAddr: ICMNameAddress);
+<<<<<<< HEAD
   procedure setBillToParty(const pmcInv: IXMLInvoiceWood; const pmcIH: ICMInvoiceHeader; const  pmcRefName, pmcReference: string);
+=======
+  procedure setBillToParty(const pmcInv: IXMLInvoiceWood; const pmcAssignedBy, pmcRefName, pmcReference: string);
+>>>>>>> 8371b59a08ad358bd0ae54766786b6dbccdbf1fb
   var
     btb: IXMLParty;
     btbId: IXMLPartyIdentifier;
     btbAd: IXMLNameAddress;
   begin
     btb := pmcInv.InvoiceWoodHeader.BillToParty;
+<<<<<<< HEAD
     btb.NameAddress.Name1 := pmcIH.BillToParty.Get_Address.Name1;
     btb.NameAddress.Address1 := pmcIH.BillToParty.Get_Address.Address1;
     btb.NameAddress.Address2 := pmcIH.BillToParty.Get_Address.Address2;
@@ -179,6 +184,36 @@ procedure TForm1.btnCreateXMLClick(Sender: TObject);
     btbId.nodeValue := pmcIH.BillToParty.Get_VATid;
   end;
 
+=======
+    btbId := btb.PartyIdentifier.Add;
+    btbId.SetAttributeNS('PartyidentifierType','','AssignedBySeller');
+    btbId.nodeValue :='498';
+    btbId := btb.PartyIdentifier.Add;
+    btbId.SetAttributeNS('PartyidentifierType','','VATIdentificationNumber');
+    btbId.nodeValue :='556645-6215';
+
+    btbAd := btb.NameAddress;
+    btbAd.Name1 := 'Byggmax Norge';
+    btbAd.Name2 := 'Peter Lyvestand';
+    btbAd.Address1 := 'Box 6063';
+    btbAd.PostalCode.Text := '171 06';
+    btbAd.City := 'Solna';
+    btbAd.Country.ISOCountryCode := 'FI';
+  end;
+{
+        <BillToParty>
+            <PartyIdentifier PartyIdentifierType="AssignedBySeller">100222</PartyIdentifier>
+            <PartyIdentifier PartyIdentifierType="VATIdentificationNumber">IT00549301208</PartyIdentifier>
+            <NameAddress>
+                <Name1>DE LEGNO</Name1>
+                <Address1>VIA DON LUIGI 10</Address1>
+                <City>MILANO</City>
+                <PostalCode>20026</PostalCode>
+                <Country ISOCountryCode="IT">IT</Country>
+            </NameAddress>
+        </BillToParty>
+}
+>>>>>>> 8371b59a08ad358bd0ae54766786b6dbccdbf1fb
   procedure setSupplierParty(const pmcInv: IXMLInvoiceWood; const pmcAssignedBy, pmcRefName, pmcReference: string);
   var
     btb: IXMLParty;
@@ -483,11 +518,19 @@ begin
   inv.InvoiceType := 'Invoice';
   inv.InvoiceWoodHeader.InvoiceNumber := IH.InvoiceNumber;
   SetMessageDate(inv, now);
+<<<<<<< HEAD
   SetReference(inv, 'seller', 'LoadingOrderNo', InvoiceData.Get_InvoiceHeader.LoadingOrderNo);
   SetReference(inv, 'seller', 'Contract', InvoiceData.Get_InvoiceHeader.Contract);
   SetReference(inv, 'seller', 'Delivery note', InvoiceData.Get_InvoiceHeader.LoadNo);
 
   setBillToParty(inv, IH, '', '');
+=======
+  SetReference(inv, 'seller', 'LoadingOrderNo', InvoiceData.));
+  SetReference(inv, 'seller', 'Contract', 'F22/1291');
+  SetReference(inv, 'seller', 'Delivery note', intToStr(26871));
+
+  setBillToParty(inv, '', '', '');
+>>>>>>> 8371b59a08ad358bd0ae54766786b6dbccdbf1fb
   setSupplierParty(inv, '', '', '');
   setBuyerParty(inv, '', '', '');
   setShipmentCharacteristics(inv, '', '', '');
