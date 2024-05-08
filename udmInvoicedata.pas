@@ -97,7 +97,6 @@ function TdmXMLInvoice.collectInvoiceData(const pmcInvNo: string; const pmcInvoi
     result.PostalCode := sp_ShipTo.FieldByName('PostalCode').AsString;
     result.StateOrProvince := sp_ShipTo.FieldByName('StateOrProvince').AsString;
     result.City := sp_ShipTo.FieldByName('CityName').AsString;
-<<<<<<< HEAD
     result.Country := sp_ShipTo.FieldByName('ISOCountryCode').AsString;
   end;
 
@@ -114,19 +113,13 @@ function TdmXMLInvoice.collectInvoiceData(const pmcInvNo: string; const pmcInvoi
     result.Country := sp_Invoice.FieldByName('ISOCountryCode').AsString;
   end;
 
-=======
-    result.Country := sp_ShipTo.FieldByName('ISOCountryCode').AsString;  end;
->>>>>>> 8371b59a08ad358bd0ae54766786b6dbccdbf1fb
 var
   intInvNo: integer;
   invHead: TCMInvoiceHeader;
   adr: ICMNameAddress;
   TD: ICMTermsOfDelivery;
-<<<<<<< HEAD
   BTP: TCMBillToParty;
   s: string;
-=======
->>>>>>> 8371b59a08ad358bd0ae54766786b6dbccdbf1fb
 begin
   fInvoice := pmcInvoice;
   fDBReadComplete := false;
@@ -177,7 +170,6 @@ begin
       fInvoiceheader := fInvoice.Get_InvoiceHeader;
       fInvoiceHeader.InvoiceNumber := pmcInvNo;
       fInvoiceHeader.Set_InvoiceDate(sp_Invoice.FieldByName('INV_DATE').AsString);
-<<<<<<< HEAD
       fInvoiceHeader.LoadingOrderNo := sp_Invoice.FieldByName('ShippingPlanNo').AsString;
       fInvoiceHeader.Contract := sp_Invoice.FieldByName('OrderNoText').AsString;
       fInvoiceHeader.LoadNo := sp_InvoicedLoad.FieldByName('LoadNo').AsString;
@@ -188,25 +180,16 @@ begin
       fInvoiceHeader.BillToParty := BTP;
       adr := getShipToAddress(fInternalInvNo);
 
-=======
-
-      adr := getShipToAddress(fInternalInvNo);
-
-//      TD := TCMTermsOfDelivery.create;
->>>>>>> 8371b59a08ad358bd0ae54766786b6dbccdbf1fb
       TD := fInvoiceheader.ShipToCharacteristics.TermsOfDelivery;
       TD.AdditionalText := 'Hejheja';
       fInvoiceHeader.ShipToCharacteristics.TermsOfDelivery := TD;
 //      TermsOfDelivery;//ShipToParty.fAddress.Name1 := adr.Name1;
 //      fInvoiceHeader.InvoiceReference :=
 //      fInvoiceHeader.(sp_Invoice.FieldByName('').AsString);)
-<<<<<<< HEAD
       sp_invoice.next;
       while not sp_invoice.Eof do begin
         sp_invoice.next;
       end;
-=======
->>>>>>> 8371b59a08ad358bd0ae54766786b6dbccdbf1fb
     finally
   if sp_Invoice.Active then
     sp_Invoice.Close;

@@ -16,11 +16,8 @@ TCMParty = class;
 //TCMDateBasis = class;
 TCMCountryOfOrigin = class;
 TCMShipToCharacteristics = class;
-<<<<<<< HEAD
 TCMBillToParty = class;
 TCMTypedParty = class;
-=======
->>>>>>> 8371b59a08ad358bd0ae54766786b6dbccdbf1fb
 
 TCMAddressInfo = class(TInterfacedObject, ICMNameAddress)
   private
@@ -79,7 +76,6 @@ TCMParty = class(TInterfacedObject, ICMParty)
     public
       constructor create(const pmcName: string; const pmcAddress: ICMNameAddress);
       property Name: string read fName;
-<<<<<<< HEAD
       property Address: ICMNameAddress read Get_Address write Set_Address;
       property VATid: TCM_XMLString read Get_VATId write SET_VATid;
   end;
@@ -98,19 +94,6 @@ end;
 TCMBillToParty = class(TCMTypedParty)
   public
     constructor create(const pmcName: string; const pmcAddress: ICMNameAddress);
-=======
-      property Address: ICMNameAddress read fAddress write fAddress;
-  end;
-
-TCMTypedParty = class(TCMParty)
-  private
-    fPartyType: TCM_XMLString;
-    function Get_PartyType: TCM_XMLString;
-  public
-    { Methods & Properties }
-    constructor create(const pmcName: string; const pmcAddress: ICMNameAddress; const pmcPartyType: TCM_XMLString);
-    property PartyType: TCM_XMLString read Get_PartyType;
->>>>>>> 8371b59a08ad358bd0ae54766786b6dbccdbf1fb
 end;
 
 TCMInvoice = class(TInterfacedObject, ICMInvoice)
@@ -152,7 +135,6 @@ end;
   private
     fInvoicedate: TCM_XMLString;
     fInvoiceNo: TCM_XMLString;
-<<<<<<< HEAD
     fLoadingOrderNo: TCM_XMLString;
     fContract: TCM_XMLString;
     fLoadNo: TCM_XMLString;
@@ -160,12 +142,6 @@ end;
     fSupplier: ICMTypedParty;
     fBuyer: ICMTypedParty;
     fShipTo: ICMTypedParty;
-=======
-    fBillTo: TCMParty;
-    fSupplier: TCMParty;
-    fBuyer: TCMParty;
-    fShipTo: TCMParty;
->>>>>>> 8371b59a08ad358bd0ae54766786b6dbccdbf1fb
     fShipToCharacteristics: ICMShipToCharacteristics;
     FInvoiceReference: ICMInvoiceReferenceList;
     FRemitToParty: ICMPartyList;
@@ -208,7 +184,6 @@ end;
   public
     constructor create;
     property Invoicedate: TCMInvoiceDate read get_InvoiceDate;
-<<<<<<< HEAD
     property LoadingOrderNo: TCM_XMLString read fLoadingOrderNo write fLoadingOrderNo;
     property Contract: TCM_XMLString read Get_Contract write Set_Contract;
     property LoadNo: TCM_XMLString read Get_LoadNo write Set_LoadNo;
@@ -216,9 +191,6 @@ end;
     property BillToParty: ICMTypedParty read Get_BillToParty write Set_BillToParty;
     property CustomerNo: TCM_XMLString read Get_CustomerNo write Set_CustomerNo;
     property VATNo: TCM_XMLString read Get_VATNo write Set_VATNo;
-=======
-    property ShipToCharacteristics: ICMShipToCharacteristics read fShipToCharacteristics;
->>>>>>> 8371b59a08ad358bd0ae54766786b6dbccdbf1fb
 //    property
   end;
 
@@ -489,16 +461,12 @@ begin
   fShipToCharacteristics := TCMShipToCharacteristics.Create;
 end;
 
-<<<<<<< HEAD
 function TCMInvoiceHeader.Get_BillToParty: ICMTypedParty;
 begin
   result := fBillTo;
 end;
 
 function TCMInvoiceHeader.Get_BuyerParty: ICMTypedParty;
-=======
-function TCMInvoiceHeader.Get_BillToParty: ICMParty;
->>>>>>> 8371b59a08ad358bd0ae54766786b6dbccdbf1fb
 begin
 
 end;
@@ -581,14 +549,11 @@ end;
 function TCMInvoiceHeader.Get_ShipToCharacteristics: ICMShipToCharacteristics;
 begin
   result := fShipToCharacteristics;
-<<<<<<< HEAD
 end;
 
 function TCMInvoiceHeader.Get_SupplierParty: ICMTypedParty;
 begin
 
-=======
->>>>>>> 8371b59a08ad358bd0ae54766786b6dbccdbf1fb
 end;
 
 function TCMInvoiceHeader.Get_VATNo: TCM_XMLString;
@@ -621,7 +586,6 @@ begin
   fInvoiceNo := pmcValue;
 end;
 
-<<<<<<< HEAD
 procedure TCMInvoiceHeader.Set_LoadingOrderNo(Value: TCM_XMLString);
 begin
   fLoadingOrderNo := Value;
@@ -637,8 +601,6 @@ begin
   fVATNo := Value;
 end;
 
-=======
->>>>>>> 8371b59a08ad358bd0ae54766786b6dbccdbf1fb
 { TCMCountry }
 
 function TCMCountry.Get_ISOCountryCode: TCM_XMLString;
@@ -676,10 +638,7 @@ end;
 constructor TCMTypedParty.create(const pmcName: string; const pmcAddress: ICMNameAddress; const pmcPartyType: TCM_XMLString);
 begin
   inherited create(pmcName, pmcAddress);
-<<<<<<< HEAD
   fPartyType := pmcPartyType;
-=======
->>>>>>> 8371b59a08ad358bd0ae54766786b6dbccdbf1fb
 end;
 
 function TCMTypedParty.Get_PartyType: TCM_XMLString;
@@ -688,14 +647,11 @@ begin
 end;
 
 
-<<<<<<< HEAD
 procedure TCMTypedParty.Set_PartyType(Value: TCM_XMLString);
 begin
   fPartyType := Value;
 end;
 
-=======
->>>>>>> 8371b59a08ad358bd0ae54766786b6dbccdbf1fb
 { TCMShipToCharacteristics }
 
 constructor TCMShipToCharacteristics.create;
@@ -736,7 +692,6 @@ begin
   fAdditionalText := Value;
 end;
 
-<<<<<<< HEAD
 { TCMBillTo }
 
 constructor TCMBillToParty.create(const pmcName: string;
@@ -746,6 +701,4 @@ begin
 end;
 
 
-=======
->>>>>>> 8371b59a08ad358bd0ae54766786b6dbccdbf1fb
 end.
