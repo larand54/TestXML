@@ -112,7 +112,7 @@ object Form1: TForm1
     Top = 72
   end
   object ds2: TDataSource
-    DataSet = dmXMLInvoice.sp_Invoice
+    DataSet = dmXMLInvoice.sp_BillTo
     Left = 672
     Top = 440
   end

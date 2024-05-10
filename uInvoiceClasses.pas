@@ -17,7 +17,129 @@ TCMParty = class;
 TCMCountryOfOrigin = class;
 TCMShipToCharacteristics = class;
 TCMBillToParty = class;
+TCMSupplierParty = class;
+TCMBuyerParty = class;
+TCMShipToParty = class;
 TCMTypedParty = class;
+
+TCMInvoiceDetail = class(TInterfacedObject, ICMInvoiceDetail)
+  private
+    fProdGroup: TCM_XMLString;
+    flineNo: TCM_XMLString;
+    fPurchaseOrderNo: TCM_XMLString;
+    fProductNo: TCM_XMLString;
+    fProductDescr: TCM_XMLString;
+    fQuantityType: TCM_XMLString;
+    fQUOM: double;
+    fCurrencyType: TCM_XMLString;
+    fCurrencyValue: double;
+    fPrice: double;
+    fTaxType: TCM_XMLString;
+    fTaxPercent: double;
+    fTaxValue: double;
+    fLineValue: double;
+    fTaxLocation: TCM_XMLString;
+
+
+    function Get_ProdGroup: TCM_XMLString;
+    function Get_lineNo: TCM_XMLString;
+    function Get_PurchaseOrderNo: TCM_XMLString;
+    function Get_ProductNo: TCM_XMLString;
+    function Get_ProductDescr: TCM_XMLString;
+    function Get_QuantityType: TCM_XMLString;
+    function Get_QUOM: double;
+    function Get_CurrencyType: TCM_XMLString;
+    function Get_CurrencyValue: double;
+    function Get_Price: double;
+    function Get_TaxType: TCM_XMLString;
+    function Get_TaxPercent: double;
+    function Get_TaxValue: double;
+    function Get_LineValue: double;
+    function Get_TaxLocation: TCM_XMLString;
+
+    procedure Set_ProdGroup(Value: TCM_XMLString);
+    procedure Set_lineNo(Value: TCM_XMLString);
+    procedure Set_PurchaseOrderNo(Value: TCM_XMLString);
+    procedure Set_ProductNo(Value: TCM_XMLString);
+    procedure Set_ProductDescr(Value: TCM_XMLString);
+    procedure Set_QuantityType(Value: TCM_XMLString);
+    procedure Set_QUOM(Value: double);
+    procedure Set_CurrencyType(Value: TCM_XMLString);
+    procedure Set_CurrencyValue(Value: double);
+    procedure Set_Price(Value: double);
+    procedure Set_TaxType(Value: TCM_XMLString);
+    procedure Set_TaxPercent(Value: double);
+    procedure Set_TaxValue(Value: double);
+    procedure Set_LineValue(Value: double);
+    procedure Set_TaxLocation(Value: TCM_XMLString);
+  public
+    property prodGroup: TCM_XMLString read Get_ProdGroup write Set_ProdGroup;
+    property lineNo: TCM_XMLString read Get_LineNo write Set_lineNo;
+    property PurchaseOrderNo: TCM_XMLString read Get_PurchaseOrderNo write Set_PurchaseOrderNo;
+    property ProductNo: TCM_XMLString read Get_ProductNo write Set_ProductNo;
+    property ProductDescr: TCM_XMLString read Get_ProductDescr write Set_ProductDescr;
+    property QuantityType: TCM_XMLString read Get_QuantityType write Set_QuantityType;
+    property QUOM: double read Get_QUOM write Set_QUOM;
+    property CurrencyType: TCM_XMLString read Get_CurrencyType write Set_CurrencyType;
+    property CurrencyValue: double read Get_CurrencyValue write Set_CurrencyValue;
+    property Price: double read Get_Price write Set_Price;           // Currencyvalue/QUOM
+    property TaxType: TCM_XMLString read Get_TaxType write Set_TaxType;
+    property TaxPercent: double read Get_TaxPercent write Set_TaxPercent;
+    property TaxValue: double read Get_TaxValue write Set_TaxValue;
+    property LineValue: double read Get_LineValue write Set_LineValue;
+    property TaxLocation: TCM_XMLString read Get_TaxLocation write Set_TaxLocation;
+end;
+
+TInvoiceDetailArray = array of ICMInvoiceDetail;
+TCMInvoiceDetails = class(TInterfacedObject, ICMInvoiceDetails)
+private
+  fList: TInvoiceDetailArray;
+  rix: integer;  // Read index
+  wix: integer;
+    function getInvoiceDetail(index: integer): ICMInvoiceDetail;  // write index
+public
+  function Length: integer;
+  function getNext: ICMInvoiceDetail ;
+  procedure add(const pmcInvDet: ICMInvoiceDetail);
+  procedure rewind;
+  property idtarr[index: integer]: ICMInvoiceDetail read getInvoiceDetail ;
+end;
+
+TCMInvoiceSummary = class(TInterfacedObject, ICMInvoiceSummary)
+  private
+    fTotalQty: double;
+    fTotWeight: double;
+    fLineSubTotal: double;
+    fTotalAdjustments: double;
+    fTotalTaxAmt: double;
+    fTotalFASAmt: double;
+    fTotalAmt: double;
+
+    function Get_TotalQty: double;
+    function Get_TotWeight: double;
+    function Get_LineSubTotal: double;
+    function Get_TotalAdjustments: double;
+    function Get_TotalTaxAmt: double;
+    function Get_TotalFASAmt: double;
+    function Get_TotalAmt: double;
+
+    procedure Set_TotalQty(Value: double);
+    procedure Set_TotWeight(Value: double);
+    procedure Set_LineSubTotal(Value: double);
+    procedure Set_TotalAdjustments(Value: double);
+    procedure Set_TotalTaxAmt(Value: double);
+    procedure Set_TotalFASAmt(Value: double);
+    procedure Set_TotalAmt(Value: double);
+
+  public
+    property TotalQty: double Read Get_TotalQty write Set_TotalQty ;
+    property TotWeight: double Read Get_TotWeight write Set_TotWeight ;
+    property LineSubTotal: double Read Get_LineSubTotal write Set_LineSubTotal ;
+    property TotalAdjustments: double Read Get_TotalAdjustments write Set_TotalAdjustments ;
+    property TotalTaxAmt: double Read Get_TotalTaxAmt write Set_TotalTaxAmt ;
+    property TotalFASAmt: double Read Get_TotalFASAmt write Set_TotalFASAmt ;
+    property TotalAmt: double Read Get_TotalAmt write Set_TotalAmt ;
+end;
 
 TCMAddressInfo = class(TInterfacedObject, ICMNameAddress)
   private
@@ -96,35 +218,49 @@ TCMBillToParty = class(TCMTypedParty)
     constructor create(const pmcName: string; const pmcAddress: ICMNameAddress);
 end;
 
+TCMSupplierParty = class(TCMTypedParty)
+  public
+    constructor create(const pmcName: string; const pmcAddress: ICMNameAddress);
+end;
+
+TCMBuyerParty = class(TCMTypedParty)
+  public
+    constructor create(const pmcName: string; const pmcAddress: ICMNameAddress);
+end;
+
+TCMShipToParty = class(TCMTypedParty)
+  public
+    constructor create(const pmcName: string; const pmcAddress: ICMNameAddress);
+end;
+
 TCMInvoice = class(TInterfacedObject, ICMInvoice)
   private
     fInvoiceHeader: ICMInvoiceHeader;
-    fInvoiceDetails: ICMInvoiceDetails;
+    fInvoiceDetails: TCMInvoiceDetails;
     fLanguage: TCMLanguage;
-    fShipToCharacteristics: ICMShipToCharacteristics;
     function Get_InvoiceHeader: ICMInvoiceHeader;
     function Get_MonetaryAdjustment: ICMMonetaryAdjustmentList;
     function Get_InvoiceSummary: ICMInvoiceSummary;
-
-  protected
-  public
-    constructor create;
+    function Get_InvoiceDetails: ICMInvoiceDetails;
     function Get_InvoiceType: TCM_XMLString;
     function Get_InvoiceContextType: TCM_XMLString;
     function Get_Reissued: TCM_XMLString;
     function Get_Language: TCM_XMLString;
-    function Get_InvoiceShipment: ICMInvoiceShipmentList;
+
     procedure Set_InvoiceType(const pmcValue: TCM_XMLString);
     procedure Set_InvoiceContextType(const pmcValue: TCM_XMLString);
     procedure Set_Reissued(const pmcValue: TCM_XMLString);
     procedure Set_Language(const pmcValue: TCM_XMLString);
+  protected
+  public
+    constructor create;
     { Methods & Properties }
     property InvoiceType: TCM_XMLString read Get_InvoiceType write Set_InvoiceType;
     property InvoiceContextType: TCM_XMLString read Get_InvoiceContextType write Set_InvoiceContextType;
     property Reissued: TCM_XMLString read Get_Reissued write Set_Reissued;
     property Language: TCM_XMLString read Get_Language write Set_Language;
     property InvoiceHeader: ICMInvoiceHeader read Get_InvoiceHeader;
-    property InvoiceShipment: ICMInvoiceShipmentList read Get_InvoiceShipment;
+    property InvoiceDetails: ICMInvoiceDetails read Get_InvoiceDetails;
     property MonetaryAdjustment: ICMMonetaryAdjustmentList read Get_MonetaryAdjustment;
     property InvoiceSummary: ICMInvoiceSummary read Get_InvoiceSummary;
 end;
@@ -181,14 +317,19 @@ end;
     procedure Set_Contract(Value: TCM_XMLString);
     procedure Set_LoadNo(Value: TCM_XMLString);
     procedure Set_BillToParty(Value: ICMTypedParty);
+    procedure Set_SupplierParty(Value: ICMTypedParty);
+    procedure Set_BuyerParty(Value: ICMTypedParty);
+    procedure Set_ShipToCharacterisics(Value: ICMShipToCharacteristics);
   public
     constructor create;
     property Invoicedate: TCMInvoiceDate read get_InvoiceDate;
     property LoadingOrderNo: TCM_XMLString read fLoadingOrderNo write fLoadingOrderNo;
     property Contract: TCM_XMLString read Get_Contract write Set_Contract;
     property LoadNo: TCM_XMLString read Get_LoadNo write Set_LoadNo;
-    property ShipToCharacteristics: ICMShipToCharacteristics read fShipToCharacteristics;
+    property ShipToCharacteristics: ICMShipToCharacteristics read Get_ShipToCharacteristics write Set_ShipToCharacterisics;
     property BillToParty: ICMTypedParty read Get_BillToParty write Set_BillToParty;
+    property SupplierParty: ICMTypedParty read Get_SupplierParty write Set_SupplierParty;
+    property BuyerParty: ICMTypedParty read Get_BuyerParty write Set_BuyerParty;
     property CustomerNo: TCM_XMLString read Get_CustomerNo write Set_CustomerNo;
     property VATNo: TCM_XMLString read Get_VATNo write Set_VATNo;
 //    property
@@ -235,7 +376,7 @@ end;
     procedure Set_TermsOfDelivery(Value: ICMTermsOfDelivery);
 //    function Get_DeliveryRouteCode: ICMDeliveryRouteCode;
   public
-    constructor create;
+    constructor create(const pmcName: string; const pmcAddress: ICMNameAddress);
     { Methods & Properties }
     property ShipToParty: ICMTypedParty read Get_ShipToParty;
 //    property SupplyPoint: ICMSupplyPointList read Get_SupplyPoint;
@@ -294,6 +435,7 @@ constructor TCMInvoice.create;
 begin
   inherited create;
   fInvoiceHeader := TCMInvoiceHeader.create;
+  fInvoiceDetails := TCMInvoiceDetails.Create;
 //  fBillTo := TCMBi.
 end;
 
@@ -303,15 +445,18 @@ begin
 
 end;
 
+function TCMInvoice.Get_InvoiceDetails: ICMInvoiceDetails;
+begin
+  if fInvoiceDetails = nil then
+    fInvoiceDetails := TCMInvoiceDetails.Create;
+  result := fInvoiceDetails;
+end;
+
 function TCMInvoice.Get_InvoiceHeader: ICMInvoiceHeader;
 begin
   result := fInvoiceheader;
 end;
 
-function TCMInvoice.Get_InvoiceShipment: ICMInvoiceShipmentList;
-begin
-
-end;
 
 function TCMInvoice.Get_InvoiceSummary: ICMInvoiceSummary;
 begin
@@ -458,7 +603,6 @@ end;
 constructor TCMInvoiceHeader.create;
 begin
   inherited create;
-  fShipToCharacteristics := TCMShipToCharacteristics.Create;
 end;
 
 function TCMInvoiceHeader.Get_BillToParty: ICMTypedParty;
@@ -468,7 +612,7 @@ end;
 
 function TCMInvoiceHeader.Get_BuyerParty: ICMTypedParty;
 begin
-
+  result := fBuyer;
 end;
 
 function TCMInvoiceHeader.Get_CarrierParty: ICMTypedParty;
@@ -553,7 +697,7 @@ end;
 
 function TCMInvoiceHeader.Get_SupplierParty: ICMTypedParty;
 begin
-
+  result := fSupplier;
 end;
 
 function TCMInvoiceHeader.Get_VATNo: TCM_XMLString;
@@ -564,6 +708,11 @@ end;
 procedure TCMInvoiceHeader.Set_BillToParty(Value: ICMTypedParty);
 begin
   fBillTo := Value;
+end;
+
+procedure TCMInvoiceHeader.Set_BuyerParty(Value: ICMTypedParty);
+begin
+  fBuyer := Value;
 end;
 
 procedure TCMInvoiceHeader.Set_Contract(Value: TCM_XMLString);
@@ -596,10 +745,21 @@ begin
   fLoadNo := Value;
 end;
 
+procedure TCMInvoiceHeader.Set_ShipToCharacterisics(Value: ICMShipToCharacteristics);
+begin
+  fShipToCharacteristics := Value;
+end;
+
+procedure TCMInvoiceHeader.Set_SupplierParty(Value: ICMTypedParty);
+begin
+  fSupplier := Value;
+end;
+
 procedure TCMInvoiceHeader.Set_VATNo(Value: TCM_XMLString);
 begin
   fVATNo := Value;
 end;
+
 
 { TCMCountry }
 
@@ -654,9 +814,10 @@ end;
 
 { TCMShipToCharacteristics }
 
-constructor TCMShipToCharacteristics.create;
+constructor TCMShipToCharacteristics.create(const pmcName: string; const pmcAddress: ICMNameAddress);
 begin
   fTermsOfDelivery := TCMTermsOfDelivery.Create;
+  fShipToParty := TCMShipToParty.create(pmcName, pmcAddress);
 end;
 
 function TCMShipToCharacteristics.Get_ShipToParty: ICMTypedParty;
@@ -700,5 +861,290 @@ begin
   inherited create(pmcName, pmcAddress, 'BillToType');
 end;
 
+
+{ TCMSupplierParty }
+
+constructor TCMSupplierParty.create(const pmcName: string;
+  const pmcAddress: ICMNameAddress);
+begin
+  inherited create(pmcName, pmcAddress, 'SupplierType');
+end;
+
+{ TCMBuyerParty }
+
+constructor TCMBuyerParty.create(const pmcName: string;
+  const pmcAddress: ICMNameAddress);
+begin
+  inherited create(pmcName, pmcAddress, 'BuyerType');
+end;
+
+{ TCMShipToParty }
+
+constructor TCMShipToParty.create(const pmcName: string;
+  const pmcAddress: ICMNameAddress);
+begin
+  inherited create(pmcName, pmcAddress, 'ShipToType');
+end;
+
+{ TCMInvoiceDetail }
+
+
+{ TCMInvoiceSummary }
+
+
+
+function TCMInvoiceSummary.Get_LineSubTotal: double;
+begin
+
+end;
+
+function TCMInvoiceSummary.Get_TotalAdjustments: double;
+begin
+
+end;
+
+function TCMInvoiceSummary.Get_TotalAmt: double;
+begin
+
+end;
+
+function TCMInvoiceSummary.Get_TotalFASAmt: double;
+begin
+
+end;
+
+function TCMInvoiceSummary.Get_TotalQty: double;
+begin
+
+end;
+
+function TCMInvoiceSummary.Get_TotalTaxAmt: double;
+begin
+
+end;
+
+function TCMInvoiceSummary.Get_TotWeight: double;
+begin
+
+end;
+
+procedure TCMInvoiceSummary.Set_LineSubTotal(Value: double);
+begin
+
+end;
+
+procedure TCMInvoiceSummary.Set_TotalAdjustments(Value: double);
+begin
+
+end;
+
+procedure TCMInvoiceSummary.Set_TotalAmt(Value: double);
+begin
+
+end;
+
+procedure TCMInvoiceSummary.Set_TotalFASAmt(Value: double);
+begin
+
+end;
+
+procedure TCMInvoiceSummary.Set_TotalQty(Value: double);
+begin
+
+end;
+
+procedure TCMInvoiceSummary.Set_TotalTaxAmt(Value: double);
+begin
+
+end;
+
+procedure TCMInvoiceSummary.Set_TotWeight(Value: double);
+begin
+
+end;
+
+{ TCMInvoiceDetail }
+
+function TCMInvoiceDetail.Get_CurrencyType: TCM_XMLString;
+begin
+  result :=  fCurrencyType
+end;
+
+function TCMInvoiceDetail.Get_CurrencyValue: double;
+begin
+  result := fCurrencyValue;
+end;
+
+function TCMInvoiceDetail.Get_lineNo: TCM_XMLString;
+begin
+  result := fLineNo;
+end;
+
+function TCMInvoiceDetail.Get_LineValue: double;
+begin
+  result := fLineValue;
+end;
+
+function TCMInvoiceDetail.Get_Price: double;
+begin
+  result := fPrice;
+end;
+
+function TCMInvoiceDetail.Get_ProdGroup: TCM_XMLString;
+begin
+  result :=  fProdGroup;
+end;
+
+function TCMInvoiceDetail.Get_ProductDescr: TCM_XMLString;
+begin
+  result := fProductDescr;
+end;
+
+function TCMInvoiceDetail.Get_ProductNo: TCM_XMLString;
+begin
+  result := fProductNo;
+end;
+
+function TCMInvoiceDetail.Get_PurchaseOrderNo: TCM_XMLString;
+begin
+  result := PurchaseOrderNo;
+end;
+
+function TCMInvoiceDetail.Get_QuantityType: TCM_XMLString;
+begin
+  result := QuantityType;
+end;
+
+function TCMInvoiceDetail.Get_QUOM: double;
+begin
+  result := fQUOM;
+end;
+
+function TCMInvoiceDetail.Get_TaxLocation: TCM_XMLString;
+begin
+  result := fTaxLocation
+end;
+
+function TCMInvoiceDetail.Get_TaxPercent: double;
+begin
+   result := TaxPercent;
+end;
+
+function TCMInvoiceDetail.Get_TaxType: TCM_XMLString;
+begin
+  result := fTaxType
+end;
+
+function TCMInvoiceDetail.Get_TaxValue: double;
+begin
+  result := fTaxValue;
+end;
+
+procedure TCMInvoiceDetail.Set_CurrencyType(Value: TCM_XMLString);
+begin
+  fCurrencyType := Value;
+end;
+
+procedure TCMInvoiceDetail.Set_CurrencyValue(Value: double);
+begin
+  fCurrencyValue := Value;
+end;
+
+procedure TCMInvoiceDetail.Set_lineNo(Value: TCM_XMLString);
+begin
+  flineNo := Value
+end;
+
+procedure TCMInvoiceDetail.Set_LineValue(Value: double);
+begin
+  fLineValue := Value;
+end;
+
+procedure TCMInvoiceDetail.Set_Price(Value: double);
+begin
+  fPrice := Value;
+end;
+
+procedure TCMInvoiceDetail.Set_ProdGroup(Value: TCM_XMLString);
+begin
+  fProdGroup := Value;
+end;
+
+procedure TCMInvoiceDetail.Set_ProductDescr(Value: TCM_XMLString);
+begin
+  fProductDescr := Value;
+end;
+
+procedure TCMInvoiceDetail.Set_ProductNo(Value: TCM_XMLString);
+begin
+  fProductNo := Value;
+end;
+
+procedure TCMInvoiceDetail.Set_PurchaseOrderNo(Value: TCM_XMLString);
+begin
+  fPurchaseOrderNo := Value;
+end;
+
+procedure TCMInvoiceDetail.Set_QuantityType(Value: TCM_XMLString);
+begin
+  fQuantityType := Value;
+end;
+
+procedure TCMInvoiceDetail.Set_QUOM(Value: double);
+begin
+  fQUOM := Value;
+end;
+
+procedure TCMInvoiceDetail.Set_TaxLocation(Value: TCM_XMLString);
+begin
+  fTaxLocation := Value;
+end;
+
+procedure TCMInvoiceDetail.Set_TaxPercent(Value: double);
+begin
+  fTaxPercent := Value;
+end;
+
+procedure TCMInvoiceDetail.Set_TaxType(Value: TCM_XMLString);
+begin
+  fTaxType := Value;
+end;
+
+procedure TCMInvoiceDetail.Set_TaxValue(Value: double);
+begin
+  fTaxValue := value;
+end;
+
+{ TCMInvoiceDetails }
+
+procedure TCMInvoiceDetails.add(const pmcInvDet: ICMInvoiceDetail);
+begin
+  if (system.length(fList) <= wix) then begin
+    setlength(fList, system.length(fList)+50);
+  end;
+  fList[wix] := pmcInvDet;
+  inc(wix);
+end;
+
+function TCMInvoiceDetails.getInvoiceDetail(index: integer): ICMInvoiceDetail;
+begin
+  result := fList[index];
+end;
+
+function TCMInvoiceDetails.getNext: ICMInvoiceDetail;
+begin
+  result := fList[rix];
+  inc(rix);
+end;
+
+function TCMInvoiceDetails.Length: integer;
+begin
+  result := system.Length(fList);
+end;
+
+procedure TCMInvoiceDetails.rewind;
+begin
+  rix := 0;
+end;
 
 end.

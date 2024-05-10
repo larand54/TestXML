@@ -12,9 +12,10 @@ type
 { Forward Decls }
   ICMInvoice = interface;
   ICMInvoiceHeader = interface;
-  ICMInvoiceDetails = interface;
+  ICMInvoiceDetail = interface;
   ICMShipToCharacteristics = interface;
-  ICMInvoiceShipmentList = interface;
+//  ICMInvoiceShipmentList = interface;
+  ICMInvoiceShipment = interface;
   ICMInvoiceSummary = interface;
   ICMMonetaryAdjustmentList = interface;
   ICMNameAddress = interface;
@@ -30,29 +31,118 @@ type
   ICMTypedParty = interface;
   TCMS255List = TStrings;
 
+  ICMInvoiceDetail = interface(IInvokable)
+    ['{ED65CC0B-455B-4140-94A1-9DB8D36E9D53}']
+    function Get_ProdGroup: TCM_XMLString;
+    function Get_lineNo: TCM_XMLString;
+    function Get_PurchaseOrderNo: TCM_XMLString;
+    function Get_ProductNo: TCM_XMLString;
+    function Get_ProductDescr: TCM_XMLString;
+    function Get_QuantityType: TCM_XMLString;
+    function Get_QUOM: double;
+    function Get_CurrencyType: TCM_XMLString;
+    function Get_CurrencyValue: double;
+    function Get_Price: double;
+    function Get_TaxType: TCM_XMLString;
+    function Get_TaxPercent: double;
+    function Get_TaxValue: double;
+    function Get_LineValue: double;
+    function Get_TaxLocation: TCM_XMLString;
+
+    procedure Set_ProdGroup(Value: TCM_XMLString);
+    procedure Set_lineNo(Value: TCM_XMLString);
+    procedure Set_PurchaseOrderNo(Value: TCM_XMLString);
+    procedure Set_ProductNo(Value: TCM_XMLString);
+    procedure Set_ProductDescr(Value: TCM_XMLString);
+    procedure Set_QuantityType(Value: TCM_XMLString);
+    procedure Set_QUOM(Value: double);
+    procedure Set_CurrencyType(Value: TCM_XMLString);
+    procedure Set_CurrencyValue(Value: double);
+    procedure Set_Price(Value: double);
+    procedure Set_TaxType(Value: TCM_XMLString);
+    procedure Set_TaxPercent(Value: double);
+    procedure Set_TaxValue(Value: double);
+    procedure Set_LineValue(Value: double);
+    procedure Set_TaxLocation(Value: TCM_XMLString);
+
+    property prodGroup: TCM_XMLString read Get_ProdGroup write Set_ProdGroup;
+    property lineNo: TCM_XMLString read Get_LineNo write Set_lineNo;
+    property PurchaseOrderNo: TCM_XMLString read Get_PurchaseOrderNo write Set_PurchaseOrderNo;
+    property ProductNo: TCM_XMLString read Get_ProductNo write Set_ProductNo;
+    property ProductDescr: TCM_XMLString read Get_ProductDescr write Set_ProductDescr;
+    property QuantityType: TCM_XMLString read Get_QuantityType write Set_QuantityType;
+    property QUOM: double read Get_QUOM write Set_QUOM;
+    property CurrencyType: TCM_XMLString read Get_CurrencyType write Set_CurrencyType;
+    property CurrencyValue: double read Get_CurrencyValue write Set_CurrencyValue;
+    property Price: double read Get_Price write Set_Price;           // Currencyvalue/QUOM
+    property TaxType: TCM_XMLString read Get_TaxType write Set_TaxType;
+    property TaxPercent: double read Get_TaxPercent write Set_TaxPercent;
+    property TaxValue: double read Get_TaxValue write Set_TaxValue;
+    property LineValue: double read Get_LineValue write Set_LineValue;
+    property TaxLocation: TCM_XMLString read Get_TaxLocation write Set_TaxLocation;
+  end;
+
+  ICMInvoiceDetails = interface(IInvokable)
+    ['{37EEFCF8-3A11-4B32-9ED3-E4AD8540EC98}']
+    function getNext: ICMInvoiceDetail;
+    function Length: integer;
+    function getInvoiceDetail(index: integer): ICMInvoiceDetail;
+    procedure add(const pmcInvDet: ICMInvoiceDetail);
+    procedure rewind;
+  end;
+
+  ICMInvoiceSummary = interface(IInvokable)
+    ['{491A2A8C-7F4E-4C7B-A60E-18A3B4352E2F}']
+    function Get_TotalQty: double;
+    function Get_TotWeight: double;
+    function Get_LineSubTotal: double;
+    function Get_TotalAdjustments: double;
+    function Get_TotalTaxAmt: double;
+    function Get_TotalFASAmt: double;
+    function Get_TotalAmt: double;
+
+    procedure Set_TotalQty(Value: double);
+    procedure Set_TotWeight(Value: double);
+    procedure Set_LineSubTotal(Value: double);
+    procedure Set_TotalAdjustments(Value: double);
+    procedure Set_TotalTaxAmt(Value: double);
+    procedure Set_TotalFASAmt(Value: double);
+    procedure Set_TotalAmt(Value: double);
+
+    property TotalQty: double Read Get_TotalQty write Set_TotalQty ;
+    property TotWeight: double Read Get_TotWeight write Set_TotWeight ;
+    property LineSubTotal: double Read Get_LineSubTotal write Set_LineSubTotal ;
+    property TotalAdjustments: double Read Get_TotalAdjustments write Set_TotalAdjustments ;
+    property TotalTaxAmt: double Read Get_TotalTaxAmt write Set_TotalTaxAmt ;
+    property TotalFASAmt: double Read Get_TotalFASAmt write Set_TotalFASAmt ;
+    property TotalAmt: double Read Get_TotalAmt write Set_TotalAmt ;
+  end;
+
   ICMInvoice = interface(IInvokable)
     ['{8069589C-D3F9-4C56-BEB5-BE87C31536C8}']
     function Get_InvoiceType: TCM_XMLString;
-//    function Get_InvoiceContextType: TCM_XMLString;
-//    function Get_Reissued: TCM_XMLString;
     function Get_Language: TCM_XMLString;
     function Get_InvoiceHeader: ICMInvoiceHeader;
-    function Get_InvoiceShipment: ICMInvoiceShipmentList;
-//    function Get_MonetaryAdjustment: ICMMonetaryAdjustmentList;
+    function Get_InvoiceDetails: ICMInvoiceDetails;
     function Get_InvoiceSummary: ICMInvoiceSummary;
     procedure Set_InvoiceType(const pmcValue: TCM_XMLString);
+    procedure Set_Language(const pmcValue: TCM_XMLString);
+//    function Get_InvoiceContextType: TCM_XMLString;
+//    function Get_Reissued: TCM_XMLString;
+//    function GetInvoiceShipments: ICMInvoiceShipmentList;
+//    function Get_MonetaryAdjustment: ICMMonetaryAdjustmentList;
 //    procedure Set_InvoiceContextType(Value: TCM_XMLString);
 //    procedure Set_Reissued(Value: TCM_XMLString);
-    procedure Set_Language(const pmcValue: TCM_XMLString);
     { Methods & Properties }
-    property InvoiceType: TCM_XMLString read Get_InvoiceType write Set_InvoiceType;
 //    property InvoiceContextType: TCM_XMLString read Get_InvoiceContextType write Set_InvoiceContextType;
 //    property Reissued: TCM_XMLString read Get_Reissued write Set_Reissued;
-    property Language: TCM_XMLString read Get_Language write Set_Language;
 //    property InvoiceHeader: ICMInvoiceHeader read Get_InvoiceHeader;
-    property InvoiceShipment: ICMInvoiceShipmentList read Get_InvoiceShipment;
+//    property InvoiceShipment: ICMInvoiceShipmentList read Get_InvoiceShipments;
 //    property MonetaryAdjustment: ICMMonetaryAdjustmentList read Get_MonetaryAdjustment;
+    property InvoiceType: TCM_XMLString read Get_InvoiceType write Set_InvoiceType;
+    property Language: TCM_XMLString read Get_Language write Set_Language;
     property InvoiceSummary: ICMInvoiceSummary read Get_InvoiceSummary;
+    property InvoiceDetails: ICMInvoiceDetails read Get_InvoiceDetails;
   end;
 
   ICMInvoiceHeader = interface(IInvokable)
@@ -74,15 +164,20 @@ type
     function Get_LoadNo: TCM_XMLString;
     function Get_CustomerNo: TCM_XMLString;
     function Get_VATNo: TCM_XMLString;
+    { Methods & Properties }
+
     procedure Set_VATNo(Value: TCM_XMLString);
     procedure Set_CustomerNo(Value: TCM_XMLString);
     procedure Set_InvoiceNumber(const pmcValue: TCM_XMLString);
     procedure Set_InvoiceDate(const pmcValue: TCM_XMLString);
-    { Methods & Properties }
     procedure Set_LoadingOrderNo(Value: TCM_XMLString);
     procedure Set_Contract(Value: TCM_XMLString);
     procedure Set_LoadNo(Value: TCM_XMLString);
     procedure Set_BillToParty(Value: ICMTypedParty);
+    procedure Set_SupplierParty(Value: ICMTypedParty);
+    procedure Set_BuyerParty(Value: ICMTypedParty);
+    procedure Set_ShipToCharacterisics(Value: ICMShipToCharacteristics);
+
     property LoadingOrderNo: TCM_XMLString read Get_LoadingOrderNo write Set_LoadingOrderNo;
     property Contract: TCM_XMLString read Get_Contract write Set_Contract;
     property LoadNo: TCM_XMLString read Get_LoadNo write Set_LoadNo;
@@ -90,9 +185,9 @@ type
     property InvoiceDate: TCMInvoiceDate read Get_InvoiceDate;
     property InvoiceReference: ICMInvoiceReferenceList read Get_InvoiceReference;
     property BillToParty: ICMTypedParty read Get_BillToParty write Set_BillToParty;
-    property SupplierParty: ICMTypedParty read Get_SupplierParty;
-    property BuyerParty: ICMTypedParty read Get_BuyerParty;
-    property ShipToCharacteristics: ICMShipToCharacteristics read Get_ShipToCharacteristics;
+    property SupplierParty: ICMTypedParty read Get_SupplierParty write Set_SupplierParty;
+    property BuyerParty: ICMTypedParty read Get_BuyerParty write Set_BuyerParty;
+    property ShipToCharacteristics: ICMShipToCharacteristics read Get_ShipToCharacteristics write Set_ShipToCharacterisics;
     property SenderParty: ICMTypedParty read Get_SenderParty;
     property ReceiverParty: ICMPartyList read Get_ReceiverParty;
     property CountryOfOrigin: ICMCountryOfOrigin read Get_CountryOfOrigin;
@@ -127,19 +222,6 @@ type
     property Items[Index: Integer]: ICMInvoiceReference read Get_Item; default;
   end;
 
-  ICMInvoiceDetail = interface(IInvokable)
-    ['{74A0D07C-8663-4EAB-AF9D-8A3767727FC2}']
-  end;
-  ICMInvoiceDetails = interface(IInvokable)
-    ['{15E7E9E8-8B9B-4CD8-9042-68C9BBE9F6E0}']
-  end;
-
-  ICMInvoiceShipmentList = interface(IInvokable)
-    ['{D6D26F42-C885-4095-8A4C-0A7176A59B12}']
-  end;
-  ICMInvoiceSummary = interface(IInvokable)
-    ['{6B4A48D8-5D9C-4A40-B194-B52B9FE340E6}']
-  end;
 
   ICMMonetaryAdjustmentList = interface(IInvokable)
     ['{88FC62E5-D3CF-4061-BEBA-94F982C72EC6}']
@@ -302,21 +384,12 @@ type
     property PartyType: TCM_XMLString read Get_PartyType write Set_PartyType;
   end;
 
-(*
-    ICMBillToParty = interface(ICMTypedParty)
-      ['{4657D20A-9A7A-4BD7-A515-1C11771BBCFD}']
-    end;
+{ ICMInvoiceShipment }
 
-*)
-  (*
-    ICMGetInvoiceData = interface(IInvokable)
-      function getBillTo: TCMBillTo;
-      function getInvoiceHeader: ICMInvoice;
-      function getInvoiceDetail: ICMInvoiceDetail;
-      function ge
-    end;
+  ICMInvoiceShipment = interface(IInvokable)
+    ['{B7816101-FE85-4806-9F5E-360CC4798BE7}']
+  end;
 
-*)
 implementation
 
 end.

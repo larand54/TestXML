@@ -25,6 +25,9 @@ type
     sp_CertWood: TFDStoredProc;
     sp_KD_Certification: TFDStoredProc;
     qry_InternalFromInvno: TFDQuery;
+    sp_BillTo: TFDStoredProc;
+    sp_Supplier: TFDStoredProc;
+    sp_Buyer: TFDStoredProc;
   private
     { Private declarations }
     fInternalInvNo: integer;
@@ -40,7 +43,7 @@ type
     { Public declarations }
 
 //    function retrieveListOfInvoices(const pcmBuyer: string; const pcmFromDate: string);
-    function collectInvoiceData(const pmcInvNo: string; const pmcInvoice: ICMInvoice): boolean;
+    function collectInvoiceData(const pmcInvNo: string; const pmcInvoice: ICMInvoice; const pmcIdtls: ICMInvoiceDetails): boolean;
     function retrieveInvoiceHeader: ICMInvoiceHeader;
     function retrieveShipTo: ICMParty;
     function retrieveBillTo: ICMParty;
@@ -65,7 +68,7 @@ uses
 
 {$R *.dfm}
 
-function TdmXMLInvoice.collectInvoiceData(const pmcInvNo: string; const pmcInvoice: ICMInvoice): boolean;
+function TdmXMLInvoice.collectInvoiceData(const pmcInvNo: string; const pmcInvoice: ICMInvoice; const pmcIdtls: ICMInvoiceDetails): boolean;
 
   function ParseAddress(const pmcAddress: string): ICMNameAddress;
   var
@@ -87,7 +90,7 @@ function TdmXMLInvoice.collectInvoiceData(const pmcInvNo: string; const pmcInvoi
     result.StateOrProvince := sArr[5];
   end;
 
-  function getShipToAddress(const pmcIntInvNo: integer): ICMNameAddress;
+  function getShipToAddress: ICMNameAddress;
   begin
     result := TCMAddressInfo.create;
     result.Name1 := sp_ShipTo.FieldByName('AddressName').AsString;
@@ -100,26 +103,93 @@ function TdmXMLInvoice.collectInvoiceData(const pmcInvNo: string; const pmcInvoi
     result.Country := sp_ShipTo.FieldByName('ISOCountryCode').AsString;
   end;
 
-    function getBillToAddress(const pmcIntInvNo: integer): ICMNameAddress;
+  function getBillToAddress: ICMNameAddress;
   begin
     result := TCMAddressInfo.create;
-    result.Name1 := sp_Invoice.FieldByName('AddressName').AsString;
-    result.Address1 := sp_Invoice.FieldByName('AddressLine1').AsString;
-    result.Address2 := sp_Invoice.FieldByName('AddressLine2').AsString;
-    result.Address3 := sp_Invoice.FieldByName('AddressLine3').AsString;
-    result.PostalCode := sp_Invoice.FieldByName('PostalCode').AsString;
-    result.StateOrProvince := sp_Invoice.FieldByName('StateOrProvince').AsString;
-    result.City := sp_Invoice.FieldByName('CustomerCityName').AsString;
-    result.Country := sp_Invoice.FieldByName('ISOCountryCode').AsString;
+    result.Name1 := sp_BillTo.FieldByName('AddressName').AsString;
+    result.Address1 := sp_BillTo.FieldByName('AddressLine1').AsString;
+    result.Address2 := sp_BillTo.FieldByName('AddressLine2').AsString;
+    result.Address3 := sp_BillTo.FieldByName('AddressLine3').AsString;
+    result.PostalCode := sp_BillTo.FieldByName('PostalCode').AsString;
+    result.StateOrProvince := sp_BillTo.FieldByName('StateOrProvince').AsString;
+    result.City := sp_BillTo.FieldByName('CityName').AsString;
+    result.Country := sp_BillTo.FieldByName('ISOCountryCode').AsString;
   end;
 
+  function getSupplierAddress: ICMNameAddress;
+  begin
+    result := TCMAddressInfo.create;
+    result.Name1 := sp_Supplier.FieldByName('AddressName').AsString;
+    result.Address1 := sp_Supplier.FieldByName('AddressLine1').AsString;
+    result.PostalCode := sp_Supplier.FieldByName('PostalCode').AsString;
+    result.StateOrProvince := sp_Supplier.FieldByName('StateOrProvince').AsString;
+    result.City := sp_Supplier.FieldByName('CityName').AsString;
+    result.Country := sp_Supplier.FieldByName('ISOCountryCode').AsString;
+  end;
+
+  function getBuyerAddress: ICMNameAddress;
+  begin
+    result := TCMAddressInfo.create;
+    result.Name1 := sp_Buyer.FieldByName('CustomerName').AsString;
+    result.Address1 := sp_Buyer.FieldByName('AddressLine1').AsString;
+    result.PostalCode := sp_Buyer.FieldByName('PostalCode').AsString;
+    result.StateOrProvince := sp_Buyer.FieldByName('StateOrProvince').AsString;
+    result.City := sp_Buyer.FieldByName('CityName').AsString;
+    result.Country := sp_Buyer.FieldByName('ISOCountryCode').AsString;
+  end;
+
+  function collectInvoiceDetail(const pmcidt: ICMInvoiceDetail): ICMInvoicedetail;
+  var
+    PU: string;
+  begin
+    pmcidt.lineNo := sp_Invoice.FieldByName('OrderLineNo').AsString;
+    pmcidt.ProductDescr := sp_Invoice.FieldByName('ProductDescription').AsString;
+    pmcidt.ProductNo := '000';
+    PU := sp_Invoice.FieldByName('VolumeUnit').AsString;
+    pmcidt.QuantityType := '000';
+    if PU = 'Kvm aB' then
+      pmcidt.QuantityType := 'Square meter'
+    else if PU = 'Kvm tB' then
+      pmcidt.QuantityType := 'Square meter'
+    else if PU = 'Lopm' then
+      pmcidt.QuantityType := 'Length meter'
+    else if PU = 'm3 aDxal' then
+      pmcidt.QuantityType := 'Cubic meter'
+    else if PU = 'm3 aDxnl' then
+      pmcidt.QuantityType := 'Cubic meter'
+    else if PU = 'm3 nDxal' then
+      pmcidt.QuantityType := 'Cubic meter'
+    else if PU = 'm3 nDxnl' then
+      pmcidt.QuantityType := 'Cubic meter'
+    else if PU = 'MFBM Nom' then
+      pmcidt.QuantityType := 'MFBM'
+    else if PU = 'Packages' then
+      pmcidt.QuantityType := 'Package'
+    else if PU = 'Stycketal' then
+      pmcidt.QuantityType := 'PCS'
+    else
+      pmcidt.QuantityType := 'UnKnown';
+    pmcidt.QUOM := sp_Invoice.FieldByName('Volume_OrderUnit').AsFloat;
+    pmcidt.CurrencyType := sp_Invoice.FieldByName('Currency').AsString;
+    pmcidt.CurrencyValue := sp_Invoice.FieldByName('Price').AsFloat;
+    pmcidt.LineValue := sp_Invoice.FieldByName('ProductValue').AsFloat;
+//    pmcidt.TaxPercent := sp_Invoice.FieldByName('VATPercent').AsFloat;
+    result := pmcidt;
+  end;
 var
   intInvNo: integer;
   invHead: TCMInvoiceHeader;
   adr: ICMNameAddress;
   TD: ICMTermsOfDelivery;
   BTP: TCMBillToParty;
+  SUP: TCMSupplierParty;
+  BP: TCMBuyerParty;
+  STP: TCMShipToParty;
+  STC: TCMShipToCharacteristics;
+  idtls: ICMInvoiceDetails;
+  idt: ICMInvoiceDetail;
   s: string;
+  i: integer;
 begin
   fInvoice := pmcInvoice;
   fDBReadComplete := false;
@@ -128,6 +198,12 @@ begin
     sp_Invoice.Close;
   if sp_ShipTo.Active then
     sp_ShipTo.Close;
+  if sp_BillTo.Active then
+    sp_BillTo.Close;
+  if sp_Supplier.Active then
+    sp_Supplier.Close;
+  if sp_Buyer.Active then
+    sp_Buyer.Close;
   if sp_InvoicedLoad.Active then
     sp_InvoicedLoad.Close;
   if sp_CertWood.Active then
@@ -150,6 +226,18 @@ begin
 //  Get data from ShipTo proc.
       sp_ShipTo.ParamByName('@InvoiceNo').AsInteger := fInternalInvNo;
       sp_ShipTo.Active := true;
+
+//  Get data from BillTo proc.
+      sp_BillTo.ParamByName('@InvoiceNo').AsInteger := fInternalInvNo;
+      sp_BillTo.Active := true;
+
+//  Get data from Supplier proc.
+      sp_Supplier.ParamByName('@InvoiceNo').AsInteger := fInternalInvNo;
+      sp_Supplier.Active := true;
+
+//  Get data from Supplier proc.
+      sp_Buyer.ParamByName('@InvoiceNo').AsInteger := fInternalInvNo;
+      sp_Buyer.Active := true;
 
 //  Get data from InvoiceLoad proc.
       sp_InvoicedLoad.ParamByName('@InvoiceNo').AsInteger := fInternalInvNo;
@@ -174,27 +262,58 @@ begin
       fInvoiceHeader.Contract := sp_Invoice.FieldByName('OrderNoText').AsString;
       fInvoiceHeader.LoadNo := sp_InvoicedLoad.FieldByName('LoadNo').AsString;
       fInvoiceHeader.CustomerNo := sp_Invoice.FieldByName('KundNr').AsString;
-      adr := getBillToAddress(fInternalInvNo);
+      fInvoiceHeader.VATno := sp_Invoice.FieldByName('VAT').AsString;
+
+      adr := getBillToAddress;
       BTP := TCMBillToParty.create(sp_invoice.FieldByName('CustomerName').AsString, adr );
       BTP.VATid := sp_Invoice.FieldByName('VATno').AsString;
       fInvoiceHeader.BillToParty := BTP;
-      adr := getShipToAddress(fInternalInvNo);
+
+      adr := getSupplierAddress;
+      SUP := TCMSupplierParty.Create(sp_Supplier.FieldByName('AddressName').AsString, adr);
+      SUP.VATid := '556620-1082';  // WoodSupport always
+      fInvoiceHeader.SupplierParty := SUP;
+
+      adr := getBuyerAddress;
+      BP := TCMBuyerParty.Create(sp_Buyer.FieldByName('CustomerName').AsString, adr);
+      BP.VATid := fInvoiceHeader.VATNo;
+      fInvoiceHeader.BuyerParty := BP;
+
+      adr := getShipToAddress;
+      STC := TCMShipToCharacteristics.create(sp_ShipTo.FieldByName('AddressName').AsString, adr);
+      fInvoiceHeader.ShipToCharacteristics := STC;
 
       TD := fInvoiceheader.ShipToCharacteristics.TermsOfDelivery;
-      TD.AdditionalText := 'Hejheja';
+      TD.AdditionalText := sp_Invoice.FieldByName('DeliveryTerm').AsString;
       fInvoiceHeader.ShipToCharacteristics.TermsOfDelivery := TD;
 //      TermsOfDelivery;//ShipToParty.fAddress.Name1 := adr.Name1;
 //      fInvoiceHeader.InvoiceReference :=
 //      fInvoiceHeader.(sp_Invoice.FieldByName('').AsString);)
+
+
+      idt := TCMInvoiceDetail.Create;
+      idt := collectInvoiceDetail(idt);
+      pmcIdtls.add(idt);
       sp_invoice.next;
       while not sp_invoice.Eof do begin
+        idt := TCMInvoiceDetail.Create;
+        idt := collectInvoiceDetail(idt);
+        pmcIdtls.add(idt);
+        inc(i);
         sp_invoice.next;
       end;
+      pmcIdtls.rewind;  // To be sure readindex is set to first record.
     finally
   if sp_Invoice.Active then
     sp_Invoice.Close;
   if sp_ShipTo.Active then
     sp_ShipTo.Close;
+  if sp_BillTo.Active then
+    sp_BillTo.Close;
+  if sp_Supplier.Active then
+    sp_Supplier.Close;
+  if sp_Buyer.Active then
+    sp_Buyer.Close;
   if sp_InvoicedLoad.Active then
     sp_InvoicedLoad.Close;
   if sp_CertWood.Active then

@@ -19,9 +19,6 @@ TCMInvoiceType = TCM_XMLString;
 TCMInvoiceContextType = TCM_XMLString;
 TCMInvoiceDate = TCM_XMLString;
 TCMLanguage = TCM_XMLString;
-(*TCMInvoiceType = TCM_XMLString;
-TCMInvoiceType = TCM_XMLString;
-TCMInvoiceType = TCM_XMLString;    *)
 implementation
 
 end.

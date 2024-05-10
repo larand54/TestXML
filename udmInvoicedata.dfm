@@ -1,5 +1,5 @@
 object dmXMLInvoice: TdmXMLInvoice
-  Height = 315
+  Height = 432
   Width = 640
   object FDGUIxWaitCursor1: TFDGUIxWaitCursor
     Provider = 'Forms'
@@ -17,7 +17,6 @@ object dmXMLInvoice: TdmXMLInvoice
       'Server=JME-SSD\SQLEXPRESS01'
       'DriverID=MSSQL')
     ConnectedStoredUsage = []
-    Connected = True
     LoginPrompt = False
     Left = 40
     Top = 32
@@ -34,6 +33,7 @@ object dmXMLInvoice: TdmXMLInvoice
         Name = '@RETURN_VALUE'
         DataType = ftInteger
         ParamType = ptResult
+        Value = 0
       end
       item
         Position = 2
@@ -54,6 +54,7 @@ object dmXMLInvoice: TdmXMLInvoice
         Name = '@RETURN_VALUE'
         DataType = ftInteger
         ParamType = ptResult
+        Value = 0
       end
       item
         Position = 2
@@ -131,14 +132,77 @@ object dmXMLInvoice: TdmXMLInvoice
       
         'SELECT InternalInvoiceNo from dbo.InvoiceNumber where InvoiceNo=' +
         ':invno')
-    Left = 56
-    Top = 232
+    Left = 40
+    Top = 96
     ParamData = <
       item
         Name = 'INVNO'
         DataType = ftInteger
         ParamType = ptInput
         Value = 100997
+      end>
+  end
+  object sp_BillTo: TFDStoredProc
+    Connection = con1
+    SchemaName = 'dbo'
+    StoredProcName = 'vis_INVOICE_BILLTO_XML_Address'
+    Left = 40
+    Top = 224
+    ParamData = <
+      item
+        Position = 1
+        Name = '@RETURN_VALUE'
+        DataType = ftInteger
+        ParamType = ptResult
+        Value = 0
+      end
+      item
+        Position = 2
+        Name = '@InvoiceNo'
+        DataType = ftInteger
+        ParamType = ptInput
+      end>
+  end
+  object sp_Supplier: TFDStoredProc
+    Connection = con1
+    SchemaName = 'dbo'
+    StoredProcName = 'vis_INVOICE_SUPPLIER_XML_Address'
+    Left = 128
+    Top = 224
+    ParamData = <
+      item
+        Position = 1
+        Name = '@RETURN_VALUE'
+        DataType = ftInteger
+        ParamType = ptResult
+        Value = 0
+      end
+      item
+        Position = 2
+        Name = '@INVOICENO'
+        DataType = ftInteger
+        ParamType = ptInput
+      end>
+  end
+  object sp_Buyer: TFDStoredProc
+    Connection = con1
+    SchemaName = 'dbo'
+    StoredProcName = '[dbo].[vis_Buyer_XML]'
+    Left = 216
+    Top = 224
+    ParamData = <
+      item
+        Position = 1
+        Name = '@RETURN_VALUE'
+        DataType = ftInteger
+        ParamType = ptResult
+        Value = 0
+      end
+      item
+        Position = 2
+        Name = '@INVOICENO'
+        DataType = ftInteger
+        ParamType = ptInput
       end>
   end
 end
