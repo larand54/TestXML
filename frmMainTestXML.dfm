@@ -83,7 +83,7 @@ object Form1: TForm1
     Width = 70
     Height = 23
     TabOrder = 6
-    Text = 'edtInvno'
+    Text = '107648'
     OnKeyPress = edtInvnoKeyPress
   end
   object FDQuery1: TFDQuery

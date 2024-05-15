@@ -60,7 +60,10 @@ var
 implementation
 
 uses
-  uInvoiceException, mask;
+  uInvoiceException
+  , mask
+  , dateUtils
+;
 
 var
   inv: IXMLInvoiceWood;
@@ -259,7 +262,7 @@ procedure TForm1.btnCreateXMLClick(Sender: TObject);
     TSC := pmcIH.ShipToCharacteristics;
     TD := TSC.TermsOfDelivery;
     ShipToChar.TermsOfDelivery.IncotermsLocation.setAttributeNS('Incoterms', '', TD.AdditionalText);
-    ShipToChar.TermsOfDelivery.IncotermsLocation.nodeValue := '???';
+    ShipToChar.TermsOfDelivery.IncotermsLocation.nodeValue := pmcIH.ShipToCharacteristics.ShipToParty.Get_Address.City;
   end;
 
   procedure setSenderParty(const pmcInv: IXMLInvoiceWood; const pmcAssignedBy, pmcRefName, pmcReference: string);
@@ -288,7 +291,7 @@ procedure TForm1.btnCreateXMLClick(Sender: TObject);
     btbAd.Country.nodeValue := 'SE';
   end;
 
-  procedure setInvoiceShipment(const pmcInv: IXMLInvoiceWood; const pmcI: ICMInvoice; pmcIdtls: ICMInvoiceDetails);
+  procedure setInvoiceShipment(const pmcInv: IXMLInvoiceWood; const pmcI: ICMInvoice);
   var
     i, k: integer;
     pg: IXMLInvoiceProductGroup;
@@ -309,25 +312,32 @@ procedure TForm1.btnCreateXMLClick(Sender: TObject);
     listcv: IXMLNode;
     listv: IXMLNode;
     madj: IXMLNode;
-    node, node1, node2, node3, date: IXMLNode;
+    node, node1, node2, node3, dateNode: IXMLNode;
     ISH: IXMLInvoiceShipment;
     idtls: ICMInvoiceDetails;
     idt: ICMInvoiceDetail;
     IH: ICMInvoiceHeader;
+    sxml: TCM_XMLString;
+    Year, Month, Day: word;
+    date: TDateTime;
   begin
     inv := pmcInv;
 //    idtls := pmcI.InvoiceDetails;
     ISH := inv.InvoiceShipment.Add;
     ISH.ShipmentID.SetAttributeNS('ShipmentIDType', '', 'LotIdentifier');
     ISH.ShipmentID.NodeValue := 'SHID';
+
+// Loop through all product groups in actual invoice
     for i := 1 to 1 do
     begin             // ProductGroup(s)
       pg := ISH.InvoiceProductGroup.Add;
       pg.ProductGroupID.NodeValue := 'BOL' + intToStr(i);
+
+//   Loop through all lines on actual productgroup
       k := 0;
-      while pmcidtls.getInvoiceDetail(k) <> nil do//(k < pmcidtls.length) do
+      while pmcI.InvoiceDetails.getInvoiceDetail(k) <> nil do
       begin            // InvoiceLineItem(s)
-        idt := pmcidtls.getInvoiceDetail(k);
+        idt := pmcI.InvoiceDetails.getInvoiceDetail(k);
         iwli := pg.InvoiceWoodLineItem.Add;
         iwli.InvoiceLineNumber := k;
         prid := iwli.Product.ProductIdentifier.add;
@@ -338,22 +348,94 @@ procedure TForm1.btnCreateXMLClick(Sender: TObject);
         prdescr.NodeValue := idt.ProductDescr;
 
         qty := iwli.Quantity;
-        qty.SetAttributeNS('QuantityType', '', 'Actual Volume');
+        sxml := idt.QuantityType;
+        qty.SetAttributeNS('QuantityType', '', sxml);//idt.QuantityType);
         qtyv := qty.AddChild('Value');
-        qtyv.SetAttributeNS('UOM', '', 'CubicMeter');
+        qtyv.SetAttributeNS('UOM', '', idt.UOM);
         qtyv.NodeValue := idt.QUOM;
 
         PriceDet := iwli.InvoiceLineBaseAmountInformation.PriceDetails;
-        PriceDet.SetAttributeNS('PriceQuantitybasis', '', 'Volume');
+        PriceDet.SetAttributeNS('PriceQuantitybasis', '', idt.QuantityType);
         ppu := PriceDet.AddChild('PricePerUnit');
         cv := ppu.AddChild('CurrencyValue');
-        cv.SetAttributeNS('CurrencyType', '', 'EUR');
+        cv.SetAttributeNS('CurrencyType', '', idt.CurrencyType);
         cv.NodeValue := idt.CurrencyValue;
 
         valuePerUnit := ppu.AddChild('Value');
-        valuePerUnit.SetAttributeNS('UOM', '', 'CubicMeter');
+        valuePerUnit.SetAttributeNS('UOM', '', idt.UOM);
         valuePerUnit.NodeValue := 1;
+        inc(k);
+      end;
 
+      // Setup summations
+      pmcI.InvoiceSummary := TCMInvoiceSummary.create(pmcI);
+      iwsum := inv.InvoiceWoodSummary;
+      iwsum.TotalNumberOfLineItems := k;
+
+      tq := iwsum.AddChild('TotalQuantity');
+      tq.SetAttributeNS('QuantityType', '', idt.QuantityType);
+      qtyv := tq.AddChild('Value');
+      qtyv.SetAttributeNS('UOM', '', idt.UOM);
+      qtyv.Nodevalue := pmcI.InvoiceSummary.strQty;
+
+    // <TotalAmount>
+      node := iwsum.AddChild('TotalAmount');
+      node1 := node.AddChild('CurrencyValue');
+      node1.SetAttributeNS('CurrencyType', '', pmcI.CurrencyType);
+      node1.NodeValue := pmcI.LineTotal;
+    end;
+
+    // <TermsOfPayment>
+      node := iwsum.AddChild('TermsOfPayment');
+      node.SetAttributeNS('TermsbasisType', '', 'Invoicedate');
+      node1 := node.AddChild('TermsDescription');
+      node1.NodeValue := '45 Dagar netto';
+
+    // TermsBasisDate
+      node1 := node.AddChild('TermsBasisDate');
+      dateNode := node1.AddChild('Date');
+      date := StrToDateTime(pmcI.InvoiceDate);
+      Year := YearOf(date);
+      Month := MonthOf(date);
+      Day := DayOf(date);
+      node1 := dateNode.AddChild('Year');
+      node1.NodeValue := Year;
+      node1 := dateNode.AddChild('Month');
+      node1.NodeValue := Month;
+      node1 := dateNode.AddChild('Day');
+      node1.NodeValue := Day;
+
+    // <TermsDiscountDueDate>
+      date := StrToDateTime(pmcI.InvoiceDueDate);
+      Year := YearOf(date);
+      Month := MonthOf(date);
+      Day := DayOf(date);
+      node1 := node.AddChild('TermsDiscountDueDate');
+      dateNode := node1.AddChild('Date');
+      node1 := dateNode.AddChild('Year');
+      node1.NodeValue := year;
+      node1 := dateNode.AddChild('Month');
+      node1.NodeValue := month;
+      node1 := dateNode.AddChild('Day');
+      node1.NodeValue := day;
+
+    // <TermsNetDueDate>
+      date := StrToDateTime(pmcI.InvoiceDueDate);
+      Year := YearOf(date);
+      Month := MonthOf(date);
+      Day := DayOf(date);
+      node1 := node.AddChild('TermsNetDueDate');
+      dateNode := node1.AddChild('Date');
+      node1 := dateNode.AddChild('Year');
+      node1.NodeValue := year;
+      node1 := dateNode.AddChild('Month');
+      node1.NodeValue := month;
+      node1 := dateNode.AddChild('Day');
+      node1.NodeValue := day;
+
+ end;
+
+(*
  // Monetary adjustments
  // =======================
    // Tax adjustments
@@ -383,13 +465,12 @@ procedure TForm1.btnCreateXMLClick(Sender: TObject);
         node1 := node.AddChild('CurrencyValue');
         node1.SetAttributeNS('CurrencyType','','EUR');
         node1.NodeValue := idt.LineValue;
-   //
-      inc(k);
-      end;
 
+ // Invoice summations
       iwsum := inv.InvoiceWoodSummary;
       iwsum.TotalNumberOfLineItems := k;
     // <TotalQuantity QuantityType="Volume">
+
       tq := iwsum.AddChild('TotalQuantity');
       tq.SetAttributeNS('QuantityType', '', 'Volume');
       qtyv := tq.AddChild('Value');
@@ -492,8 +573,7 @@ procedure TForm1.btnCreateXMLClick(Sender: TObject);
       node1.SetAttributeNS('UOM', '', 'CubicMeter');
       node1.NodeValue := 5 * 0.998;
     end;
-
-  end;
+*)
 
 const
   XML_Template = 'Invoice_%s.xml';
@@ -504,6 +584,7 @@ var
   IH: ICMInvoiceHeader;
   Idtls: ICMInvoiceDetails;
   XMLFile: string;
+  InvSum: ICMInvoiceSummary;
 begin
   invNo := edtInvNo.text;
   XMLFile := format(XML_Template, [invNo]);
@@ -515,7 +596,7 @@ begin
   inv.OwnerDocument.Options := inv.OwnerDocument.Options - [doAttrNull] + [doAutoSave] + [doNodeAutoIndent] + [doNodeAutoCreate];
 
   InvoiceData := TCMInvoice.create;
-  Idtls := TCMInvoiceDetails.Create;
+  Idtls := Invoicedata.InvoiceDetails;
   if not dmXMLInvoice.collectInvoiceData(invNo, InvoiceData, Idtls) then
     TInvoiceException.RaiseDBError(9901, 'Can not retrieve InvoiceData');
   inv.InvoiceType := InvoiceData.InvoiceType;
@@ -536,7 +617,7 @@ begin
   setBuyerParty(inv, IH);
   setShipmentCharacteristics(inv, IH);
 //  setSenderparty(inv, '', '', '');
-  setInvoiceShipment(inv, InvoiceData, Idtls);
+  setInvoiceShipment(inv, InvoiceData);
   doSaveXML(inv);
   form1.mmo1.Lines.LoadFromFile(XMLFile);
 end;

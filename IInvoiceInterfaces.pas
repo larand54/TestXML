@@ -40,6 +40,7 @@ type
     function Get_ProductDescr: TCM_XMLString;
     function Get_QuantityType: TCM_XMLString;
     function Get_QUOM: double;
+    function Get_UOM: TCM_XMLString;
     function Get_CurrencyType: TCM_XMLString;
     function Get_CurrencyValue: double;
     function Get_Price: double;
@@ -56,6 +57,7 @@ type
     procedure Set_ProductDescr(Value: TCM_XMLString);
     procedure Set_QuantityType(Value: TCM_XMLString);
     procedure Set_QUOM(Value: double);
+    procedure Set_UOM(Value: TCM_XMLString);
     procedure Set_CurrencyType(Value: TCM_XMLString);
     procedure Set_CurrencyValue(Value: double);
     procedure Set_Price(Value: double);
@@ -72,6 +74,7 @@ type
     property ProductDescr: TCM_XMLString read Get_ProductDescr write Set_ProductDescr;
     property QuantityType: TCM_XMLString read Get_QuantityType write Set_QuantityType;
     property QUOM: double read Get_QUOM write Set_QUOM;
+    property UOM: TCM_XMLString read Get_UOM write Set_UOM;
     property CurrencyType: TCM_XMLString read Get_CurrencyType write Set_CurrencyType;
     property CurrencyValue: double read Get_CurrencyValue write Set_CurrencyValue;
     property Price: double read Get_Price write Set_Price;           // Currencyvalue/QUOM
@@ -81,6 +84,9 @@ type
     property LineValue: double read Get_LineValue write Set_LineValue;
     property TaxLocation: TCM_XMLString read Get_TaxLocation write Set_TaxLocation;
   end;
+
+{ TCMInvoiceDetails }
+{ To contain all invoice detail lines for an Invoice.}
 
   ICMInvoiceDetails = interface(IInvokable)
     ['{37EEFCF8-3A11-4B32-9ED3-E4AD8540EC98}']
@@ -100,6 +106,7 @@ type
     function Get_TotalTaxAmt: double;
     function Get_TotalFASAmt: double;
     function Get_TotalAmt: double;
+    function getQty_AsString: string;
 
     procedure Set_TotalQty(Value: double);
     procedure Set_TotWeight(Value: double);
@@ -116,6 +123,7 @@ type
     property TotalTaxAmt: double Read Get_TotalTaxAmt write Set_TotalTaxAmt ;
     property TotalFASAmt: double Read Get_TotalFASAmt write Set_TotalFASAmt ;
     property TotalAmt: double Read Get_TotalAmt write Set_TotalAmt ;
+    property strQty: string read getQty_AsString;
   end;
 
   ICMInvoice = interface(IInvokable)
@@ -125,8 +133,25 @@ type
     function Get_InvoiceHeader: ICMInvoiceHeader;
     function Get_InvoiceDetails: ICMInvoiceDetails;
     function Get_InvoiceSummary: ICMInvoiceSummary;
+    function Get_LineTotal: TCM_XMLString;
+    function Get_CurrencyType: TCM_XMLString;
+    function Get_InvoiceDate: TCM_XMLString;
+    function Get_TermsOfPayment: TCM_XMLString;
+    function Get_DeliveryTerms: TCM_XMLString;
+    function Get_InvoiceDuedate: TCM_XMLString;
+    function Get_PaymentDesciption: TCM_XMLString;
+
+    procedure Set_InvoiceSummary(const pmcInvSum : ICMInvoiceSummary);
     procedure Set_InvoiceType(const pmcValue: TCM_XMLString);
     procedure Set_Language(const pmcValue: TCM_XMLString);
+    procedure Set_LineTotal(Value: TCM_XMLString);
+    procedure Set_CurrencyType(Value: TCM_XMLString);
+    procedure Set_InvoiceDate(const Value: TCM_XMLString);
+    procedure Set_TermsOfpayment(const Value: TCM_XMLString);
+    procedure Set_DeliveryTerms(const Value: TCM_XMLString);
+    procedure Set_InvoiceDueDate(const Value: TCM_XMLString);
+    procedure Set_PaymentDescription(const Value: TCM_XMLString);
+
 //    function Get_InvoiceContextType: TCM_XMLString;
 //    function Get_Reissued: TCM_XMLString;
 //    function GetInvoiceShipments: ICMInvoiceShipmentList;
@@ -141,8 +166,15 @@ type
 //    property MonetaryAdjustment: ICMMonetaryAdjustmentList read Get_MonetaryAdjustment;
     property InvoiceType: TCM_XMLString read Get_InvoiceType write Set_InvoiceType;
     property Language: TCM_XMLString read Get_Language write Set_Language;
-    property InvoiceSummary: ICMInvoiceSummary read Get_InvoiceSummary;
+    property InvoiceSummary: ICMInvoiceSummary read Get_InvoiceSummary write Set_InvoiceSummary;
     property InvoiceDetails: ICMInvoiceDetails read Get_InvoiceDetails;
+    property LineTotal: TCM_XMLString read Get_LineTotal write Set_LineTotal;
+    property CurrencyType: TCM_XMLString read Get_CurrencyType write Set_CurrencyType;
+    property TermsOfPayment: TCM_XMLString read Get_TermsOfPayment write Set_TermsOfpayment;
+    property InvoiceDate: TCM_XMLString read Get_InvoiceDate write Set_InvoiceDate;
+    property InvoiceDuedate: TCM_XMLString read Get_InvoiceDuedate write Set_InvoiceDueDate;
+    property PaymentDescription: TCM_XMLString read Get_PaymentDesciption write Set_PaymentDescription;
+    property DeliveryTerms: TCM_XMLString read Get_DeliveryTerms write Set_DeliveryTerms;
   end;
 
   ICMInvoiceHeader = interface(IInvokable)

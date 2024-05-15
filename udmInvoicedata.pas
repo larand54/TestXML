@@ -70,25 +70,6 @@ uses
 
 function TdmXMLInvoice.collectInvoiceData(const pmcInvNo: string; const pmcInvoice: ICMInvoice; const pmcIdtls: ICMInvoiceDetails): boolean;
 
-  function ParseAddress(const pmcAddress: string): ICMNameAddress;
-  var
-    sArr: TStringDynArray;
-    count: integer;
-    s: string;
-  const
-    delim = #13;
-  begin
-    sArr := SplitString(pmcAddress, delim);
-    count := length(sArr);
-    if count < 6 then
-      TInvoiceException.RaiseInvoiceHeader(count,'Not enough items in address string - should be 6');
-    result := TCMAddressInfo.Create;
-    result.Address1 := sArr[1];
-    result.Address2 := sArr[2];
-    result.Address3 := sArr[3];
-    result.PostalCode := sArr[4];
-    result.StateOrProvince := sArr[5];
-  end;
 
   function getShipToAddress: ICMNameAddress;
   begin
@@ -139,6 +120,210 @@ function TdmXMLInvoice.collectInvoiceData(const pmcInvNo: string; const pmcInvoi
   end;
 
   function collectInvoiceDetail(const pmcidt: ICMInvoiceDetail): ICMInvoicedetail;
+(*
+	<xs:simpleType name="quantityType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="ActualVolume"/>
+			<xs:enumeration value="AirDryWeight"/>
+			<xs:enumeration value="Area"/>
+			<xs:enumeration value="BoneDry"/>
+			<xs:enumeration value="Count"/>
+			<xs:enumeration value="Distance"/>
+			<xs:enumeration value="GrossWeight"/>
+			<xs:enumeration value="Energy"/>
+			<xs:enumeration value="Length"/>
+			<xs:enumeration value="LogisticsGrossWeight"/>
+			<xs:enumeration value="LogisticsNetWeight"/>
+			<xs:enumeration value="LogPileGrossVolume"/>
+			<xs:enumeration value="LogPileVolume"/>
+			<xs:enumeration value="NetWeight"/>
+			<xs:enumeration value="NetNetWeight"/>
+			<xs:enumeration value="NominalWeight"/>
+			<xs:enumeration value="Percent"/>
+			<xs:enumeration value="RunningLength"/>
+			<xs:enumeration value="ShortLengthVolume"/>
+			<xs:enumeration value="SolidWoodGrossVolume"/>
+			<xs:enumeration value="SolidWoodVolume"/>
+			<xs:enumeration value="TareWeight"/>
+			<xs:enumeration value="Time"/>
+			<xs:enumeration value="TippedLooseGrossVolume"/>
+			<xs:enumeration value="TippedLooseVolume"/>
+			<xs:enumeration value="Volume"/>
+			<xs:enumeration value="WoodGrossVolume"/>
+			<xs:enumeration value="WoodVolume"/>
+		</xs:restriction>
+	</xs:simpleType>
+*)
+
+(*
+	<xs:simpleType name="uOM">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="AirDryMetricTonne"/>
+			<xs:enumeration value="AirDryPercent"/>
+			<xs:enumeration value="AirDryShortTon"/>
+			<xs:enumeration value="Bale"/>
+			<xs:enumeration value="BoardFoot"/>
+			<xs:enumeration value="BookUnit"/>
+			<xs:enumeration value="Box"/>
+			<xs:enumeration value="Bundle"/>
+			<xs:enumeration value="C-Size"/>
+			<xs:enumeration value="Celsius"/>
+			<xs:enumeration value="Centimeter"/>
+			<xs:enumeration value="CentimeterPerSecond"/>
+			<xs:enumeration value="Cord"/>
+			<xs:enumeration value="CubicCentimeterPerGram"/>
+			<xs:enumeration value="CubicCentimeterPerSecond"/>
+			<xs:enumeration value="CubicFoot"/>
+			<xs:enumeration value="CubicInchesPerSecond"/>
+			<xs:enumeration value="CubicMeter"/>
+			<xs:enumeration value="CubicMeterKilometer"/>
+			<xs:enumeration value="CubicMeterPerKilogram"/>
+			<xs:enumeration value="Cubit"/>
+			<xs:enumeration value="Day"/>
+			<xs:enumeration value="Decilitre"/>
+			<xs:enumeration value="Decimeter"/>
+			<xs:enumeration value="Degree"/>
+			<xs:enumeration value="DegreesSchopperRiegler"/>
+			<xs:enumeration value="DotsPerInch"/>
+			<xs:enumeration value="Envelope"/>
+			<xs:enumeration value="Fahrenheit"/>
+			<xs:enumeration value="Foot"/>
+			<xs:enumeration value="Gallon"/>
+			<xs:enumeration value="Gauge"/>
+			<xs:enumeration value="Gram"/>
+			<xs:enumeration value="GramCentimeter"/>
+			<xs:enumeration value="GramForce"/>
+			<xs:enumeration value="GramPerCubicCentimeter"/>
+			<xs:enumeration value="GramPerMeter"/>
+			<xs:enumeration value="GramsPerSquareMeter"/>
+			<xs:enumeration value="Hectare"/>
+			<xs:enumeration value="Hour"/>
+			<xs:enumeration value="HundredBoardFeet"/>
+			<xs:enumeration value="HundredLinealFeet"/>
+			<xs:enumeration value="HundredPound"/>
+			<xs:enumeration value="HundredSquareFeet"/>
+			<xs:enumeration value="ImpressionCount"/>
+			<xs:enumeration value="Inch"/>
+			<xs:enumeration value="JoulePerSquareMeter"/>
+			<xs:enumeration value="Kilogram"/>
+			<xs:enumeration value="KilogramCO2e"/>
+			<xs:enumeration value="KilogramCO2ePerMetricTon"/>
+			<xs:enumeration value="KilogramForcePerSquareCentimeter"/>
+			<xs:enumeration value="KilogramForcePerCentimeter"/>
+			<xs:enumeration value="KilogramPerCubicMeter"/>
+			<xs:enumeration value="KilogramPerSquareMeter"/>
+			<xs:enumeration value="KilogramsPerDay"/>
+			<xs:enumeration value="KilogramsPerWeek"/>
+			<xs:enumeration value="Kilometer"/>
+			<xs:enumeration value="KiloNewton"/>
+			<xs:enumeration value="KiloNewtonPerMeter"/>
+			<xs:enumeration value="KiloPascal"/>
+			<xs:enumeration value="KiloWattHour"/>
+			<xs:enumeration value="KiloWattHourPerMetricTon"/>
+			<xs:enumeration value="KnownBreaks"/>
+			<xs:enumeration value="Layer"/>
+			<xs:enumeration value="Leaves"/>
+			<xs:enumeration value="LinearFoot"/>
+			<xs:enumeration value="LinesPerInch"/>
+			<xs:enumeration value="Litre"/>
+			<xs:enumeration value="Load"/>
+			<xs:enumeration value="Log"/>
+			<xs:enumeration value="LogPile"/>
+			<xs:enumeration value="LooseVolumeItem"/>
+			<xs:enumeration value="MagazineUnit"/>
+			<xs:enumeration value="Megabyte"/>
+			<xs:enumeration value="MegaJoulePerKilogram"/>
+			<xs:enumeration value="MegaWattHour"/>
+			<xs:enumeration value="MegaWattHourPerMetricTon"/>
+			<xs:enumeration value="Meter"/>
+			<xs:enumeration value="MeterPerSecond"/>
+			<xs:enumeration value="MetricTon"/>
+			<xs:enumeration value="MetricTonKilometer"/>
+			<xs:enumeration value="MetricTonsPerDay"/>
+			<xs:enumeration value="MetricTonsPerHour"/>
+			<xs:enumeration value="MetricTonsPerWeek"/>
+			<xs:enumeration value="MicroMeterPerPascalSecond"/>
+			<xs:enumeration value="Micron"/>
+			<xs:enumeration value="MilligramKOHPerGram"/>
+			<xs:enumeration value="MilligramPerKilogram"/>
+			<xs:enumeration value="MillilitrePerGram"/>
+			<xs:enumeration value="MilliLitersPerMinute"/>
+			<xs:enumeration value="Millimeter"/>
+			<xs:enumeration value="MillimeterPerMeter"/>
+			<xs:enumeration value="MilliNewton"/>
+			<xs:enumeration value="MilliNewtonMeter"/>
+			<xs:enumeration value="MilliNewtonSquareMeterPerGram"/>
+			<xs:enumeration value="MilliPascalSecond"/>
+			<xs:enumeration value="Minute"/>
+			<xs:enumeration value="Month"/>
+			<xs:enumeration value="NanoMeter"/>
+			<xs:enumeration value="Newton"/>
+			<xs:enumeration value="NewtonMeterPerGram"/>
+			<xs:enumeration value="None"/>
+			<xs:enumeration value="Package"/>
+			<xs:enumeration value="Page"/>
+			<xs:enumeration value="PagesPerForm"/>
+			<xs:enumeration value="PagesPerImpression"/>
+			<xs:enumeration value="PagesPerInch"/>
+			<xs:enumeration value="PalletUnit"/>
+			<xs:enumeration value="PartsPerMillion"/>
+			<xs:enumeration value="PascalSecond"/>
+			<xs:enumeration value="Percentage"/>
+			<xs:enumeration value="PerThousand"/>
+			<xs:enumeration value="pH"/>
+			<xs:enumeration value="Picas"/>
+			<xs:enumeration value="Piece"/>
+			<xs:enumeration value="PiecesPerDay"/>
+			<xs:enumeration value="PiecesPerHour"/>
+			<xs:enumeration value="PiecesPerMeter"/>
+			<xs:enumeration value="PixelsPerInch"/>
+			<xs:enumeration value="Pound"/>
+			<xs:enumeration value="PoundCO2e"/>
+			<xs:enumeration value="PoundCO2ePerShortTon"/>
+			<xs:enumeration value="PoundForce"/>
+			<xs:enumeration value="PoundPerCubicFoot"/>
+			<xs:enumeration value="PoundPerSixInchDiameter"/>
+			<xs:enumeration value="PoundPerSquareInch"/>
+			<xs:enumeration value="PoundsPerDay"/>
+			<xs:enumeration value="PoundsPerHour"/>
+			<xs:enumeration value="PoundsPerWeek"/>
+			<xs:enumeration value="PulpUnit"/>
+			<xs:enumeration value="Ream"/>
+			<xs:enumeration value="Reel"/>
+			<xs:enumeration value="Second"/>
+			<xs:enumeration value="Set"/>
+			<xs:enumeration value="Sheet"/>
+			<xs:enumeration value="ShortTon"/>
+			<xs:enumeration value="ShortTonsPerDay"/>
+			<xs:enumeration value="ShortTonsPerHour"/>
+			<xs:enumeration value="ShortTonsPerWeek"/>
+			<xs:enumeration value="Signature"/>
+			<xs:enumeration value="Skid"/>
+			<xs:enumeration value="SquareDecimeter"/>
+			<xs:enumeration value="SquareFeet"/>
+			<xs:enumeration value="SquareInch"/>
+			<xs:enumeration value="SquareMeter"/>
+			<xs:enumeration value="SquareMeterPerKilogram"/>
+			<xs:enumeration value="SquareMillimeterPerKilogram"/>
+			<xs:enumeration value="SquareMillimeterPerSecond"/>
+			<xs:enumeration value="TenKilometer"/>
+			<xs:enumeration value="ThousandBoardFeet"/>
+			<xs:enumeration value="ThousandLinealFeet"/>
+			<xs:enumeration value="ThousandPieces"/>
+			<xs:enumeration value="ThousandSheet"/>
+			<xs:enumeration value="ThousandSquareCentimeters"/>
+			<xs:enumeration value="ThousandSquareFeet"/>
+			<xs:enumeration value="ThousandSquareInch"/>
+			<xs:enumeration value="Ton"/>
+			<xs:enumeration value="TonsPerHour"/>
+			<xs:enumeration value="Unit"/>
+			<xs:enumeration value="UnknownBreaks"/>
+			<xs:enumeration value="Week"/>
+			<xs:enumeration value="Yard"/>
+			<xs:enumeration value="Year"/>
+		</xs:restriction>
+	</xs:simpleType>
+*)
   var
     PU: string;
   begin
@@ -147,28 +332,47 @@ function TdmXMLInvoice.collectInvoiceData(const pmcInvNo: string; const pmcInvoi
     pmcidt.ProductNo := '000';
     PU := sp_Invoice.FieldByName('VolumeUnit').AsString;
     pmcidt.QuantityType := '000';
-    if PU = 'Kvm aB' then
-      pmcidt.QuantityType := 'Square meter'
-    else if PU = 'Kvm tB' then
-      pmcidt.QuantityType := 'Square meter'
-    else if PU = 'Lopm' then
-      pmcidt.QuantityType := 'Length meter'
-    else if PU = 'm3 aDxal' then
-      pmcidt.QuantityType := 'Cubic meter'
-    else if PU = 'm3 aDxnl' then
-      pmcidt.QuantityType := 'Cubic meter'
-    else if PU = 'm3 nDxal' then
-      pmcidt.QuantityType := 'Cubic meter'
-    else if PU = 'm3 nDxnl' then
-      pmcidt.QuantityType := 'Cubic meter'
-    else if PU = 'MFBM Nom' then
-      pmcidt.QuantityType := 'MFBM'
-    else if PU = 'Packages' then
-      pmcidt.QuantityType := 'Package'
+    if PU = 'Kvm aB' then begin
+      pmcidt.QuantityType := 'Area';
+      pmcidt.UOM := 'SquareMeter';
+    end
+    else if PU = 'Kvm tB' then begin
+      pmcidt.QuantityType := 'Area';
+      pmcidt.UOM := 'SquareMeter';
+    end
+    else if PU = 'Lopm' then begin
+      pmcidt.QuantityType := 'Length';
+      pmcidt.UOM := 'Meter';
+    end
+    else if PU = 'm3 aDxaL' then begin
+      pmcidt.QuantityType := 'Volume';
+      pmcidt.UOM := 'CubicMeter';
+    end
+    else if PU = 'm3 aDxnL' then begin
+      pmcidt.QuantityType := 'Volume';
+      pmcidt.UOM := 'CubicMeter';
+    end
+    else if PU = 'm3 nDxaL' then begin
+      pmcidt.QuantityType := 'Volume';
+      pmcidt.UOM := 'CubicMeter';
+    end
+    else if PU = 'm3 nDxnL' then begin
+      pmcidt.QuantityType := 'Volume';
+      pmcidt.UOM := 'CubicMeter';
+    end
+    else if PU = 'MFBM Nom' then begin
+      pmcidt.QuantityType := 'Volume';
+      pmcidt.UOM := 'MFBM';
+    end
+    else if PU = 'Packages' then begin
+      pmcidt.QuantityType := 'Count';
+      pmcidt.UOM := 'Package';
+    end
     else if PU = 'Stycketal' then
-      pmcidt.QuantityType := 'PCS'
-    else
-      pmcidt.QuantityType := 'UnKnown';
+      pmcidt.UOM := 'Count'
+    else begin
+      pmcidt.UOM := 'UnKnown';
+    end;
     pmcidt.QUOM := sp_Invoice.FieldByName('Volume_OrderUnit').AsFloat;
     pmcidt.CurrencyType := sp_Invoice.FieldByName('Currency').AsString;
     pmcidt.CurrencyValue := sp_Invoice.FieldByName('Price').AsFloat;
@@ -188,8 +392,19 @@ var
   STC: TCMShipToCharacteristics;
   idtls: ICMInvoiceDetails;
   idt: ICMInvoiceDetail;
+  invSum: ICMInvoiceSummary;
+
   s: string;
   i: integer;
+  // Summeringar
+  TotalQty: double;
+  TotWeight: double;
+  LineSubTotal: double;
+  TotalAdjustments: double;
+  TotalTaxAmt: double;
+  TotalFASAmt: double;
+  TotalAmt: double;
+
 begin
   fInvoice := pmcInvoice;
   fDBReadComplete := false;
@@ -235,7 +450,7 @@ begin
       sp_Supplier.ParamByName('@InvoiceNo').AsInteger := fInternalInvNo;
       sp_Supplier.Active := true;
 
-//  Get data from Supplier proc.
+//  Get data from Buyer proc.
       sp_Buyer.ParamByName('@InvoiceNo').AsInteger := fInternalInvNo;
       sp_Buyer.Active := true;
 
@@ -291,17 +506,21 @@ begin
 //      fInvoiceHeader.(sp_Invoice.FieldByName('').AsString);)
 
 
-      idt := TCMInvoiceDetail.Create;
-      idt := collectInvoiceDetail(idt);
-      pmcIdtls.add(idt);
-      sp_invoice.next;
+      // Invoice details(lines)
+      sp_invoice.first;
+      fInvoice.LineTotal := sp_Invoice.FieldByName('ValueToBePaid').AsString;
+      fInvoice.CurrencyType := sp_Invoice.FieldByName('Currency').AsString;
       while not sp_invoice.Eof do begin
         idt := TCMInvoiceDetail.Create;
         idt := collectInvoiceDetail(idt);
         pmcIdtls.add(idt);
-        inc(i);
         sp_invoice.next;
       end;
+      fInvoice.InvoiceSummary := TCMInvoiceSummary.create(fInvoice);
+      fInvoice.DeliveryTerms := sp_Invoice.FieldByName('DeliveryTerm').AsString;
+      fInvoice.PaymentDescription := sp_Invoice.FieldByName('PaymentDescription').AsString;
+      fInvoice.InvoiceDate := sp_Invoice.FieldByName('INV_DATE').AsString;
+      fInvoice.InvoiceDueDate := sp_Invoice.FieldByName('DueDate').AsString;
       pmcIdtls.rewind;  // To be sure readindex is set to first record.
     finally
   if sp_Invoice.Active then
