@@ -1,6 +1,6 @@
 USE [WOODSUPPORT]
 GO
-/****** Object:  StoredProcedure [dbo].[vis_shipto_FR]    Script Date: 2024-05-06 12:43:15 ******/
+/****** Object:  StoredProcedure [dbo].[vis_shipto_XML]    Script Date: 2024-05-15 11:42:02 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON

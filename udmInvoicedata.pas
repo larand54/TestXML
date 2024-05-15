@@ -327,9 +327,10 @@ function TdmXMLInvoice.collectInvoiceData(const pmcInvNo: string; const pmcInvoi
   var
     PU: string;
   begin
-    pmcidt.lineNo := sp_Invoice.FieldByName('OrderLineNo').AsString;
+    pmcidt.lineNo := sp_Invoice.FieldByName('InvoiceDetailNo').AsString;
     pmcidt.ProductDescr := sp_Invoice.FieldByName('ProductDescription').AsString;
-    pmcidt.ProductNo := '000';
+    pmcidt.ProductNo := sp_Invoice.FieldByName('productNo').AsString;
+    pmcidt.prodGroup := sp_Invoice.FieldByName('productGroupNo').AsString;
     PU := sp_Invoice.FieldByName('VolumeUnit').AsString;
     pmcidt.QuantityType := '000';
     if PU = 'Kvm aB' then begin

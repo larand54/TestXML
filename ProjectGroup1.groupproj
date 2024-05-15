@@ -15,6 +15,9 @@
         <Projects Include="..\VIDA\VIS-IIX\VIS 1211\VIS.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="TEST\Project2.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -59,14 +62,23 @@
     <Target Name="VIS:Make">
         <MSBuild Projects="..\VIDA\VIS-IIX\VIS 1211\VIS.dproj" Targets="Make"/>
     </Target>
+    <Target Name="Project2">
+        <MSBuild Projects="TEST\Project2.dproj"/>
+    </Target>
+    <Target Name="Project2:Clean">
+        <MSBuild Projects="TEST\Project2.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="Project2:Make">
+        <MSBuild Projects="TEST\Project2.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="TestXML;RefTest;Project1;VIS"/>
+        <CallTarget Targets="TestXML;RefTest;Project1;VIS;Project2"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="TestXML:Clean;RefTest:Clean;Project1:Clean;VIS:Clean"/>
+        <CallTarget Targets="TestXML:Clean;RefTest:Clean;Project1:Clean;VIS:Clean;Project2:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="TestXML:Make;RefTest:Make;Project1:Make;VIS:Make"/>
+        <CallTarget Targets="TestXML:Make;RefTest:Make;Project1:Make;VIS:Make;Project2:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

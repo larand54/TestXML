@@ -1,12 +1,13 @@
 USE [WOODSUPPORT]
 GO
-/****** Object:  StoredProcedure [dbo].[vis_INVOICE_XML]    Script Date: 2024-05-06 12:09:49 ******/
+/****** Object:  StoredProcedure [dbo].[vis_INVOICE_XML]    Script Date: 2024-05-15 11:36:01 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
--- exec [dbo].[vis_INVOICE_FR] 3252
+-- exec [dbo].[vis_INVOICE_XML] 3252
 -- exec [dbo].[vis_INVOICE_XML] 9871
+-- exec [dbo].[vis_INVOICE_XML] 8850  -- 4 rader
 ALTER PROCEDURE [dbo].[vis_INVOICE_XML]
 
 @INVOICENO INT
@@ -24,7 +25,8 @@ DECLARE @Language int = 0,
 	@CountryName varchar(50)=null, 
 	@StateOrProvince varchar(50)=null, 
 	@InvoiceAddress varchar(450) = NULL,
-	@DeliveryTerm varchar(100) = NULL
+	@DeliveryTerm varchar(100) = NULL,
+	@ISOCountryCode varchar(3) = NULL
 	
 SELECT @CustomerName = RTRIM(isnull(IH.CustomerName,'')),
 	@AddressLine1 = RTRIM(isnull(IH.AddressLine1,'')),
@@ -40,6 +42,9 @@ SELECT @CustomerName = RTRIM(isnull(IH.CustomerName,'')),
 FROM InvoiceHeader IH 
 WHERE IH.InternalInvoiceNo = @INVOICENO
 
+SELECT 	@ISOCountryCode = RTRIM(isnull(cy.ISOCountryCode,''))
+FROM dbo.Country cy
+WHERE RTRIM(cy.CountryName)=@CountryName
  
 DECLARE @ShPNo int, @BookingNo int, @TRPID VARCHAR(50), @VESSEL VARCHAR(50), @ETA DateTime, @ETD DateTime, @SHIPPER VARCHAR(80), @SHIPCOMPBOOKID VARCHAR(20)
 SELECT     @ShPNo = Bk.ShippingPlanNo, @BookingNo= Bk.BookingNo, 
@@ -103,6 +108,10 @@ IF @Language <> 1 SET @Language = 0
 
 SELECT
 IH.InternalInvoiceNo		AS	INT_INVOICENO, 
+IH.TotalAM3 AS TotalQuantity,
+IH.Inv_Value_To_Be_Paid_2 AS ValueToBePaid,
+OL.OrderLineNo,
+
 --IH.CustomerNo,
 INO.InvoiceNo			AS	INV_NO, 
 IH.InvoiceType			AS	INV_TYPE, 
@@ -129,6 +138,7 @@ LO.CarrierName,
 @CityName AS CustomerCityName, 
 @StateOrProvince AS CustomerStateOrProvince,
 @CountryName AS CustomerCountryName, 
+@ISOCountryCode AS ISOCountryCode,
 
 CASE 
 	WHEN IH.DeliveryTerm like '%Fritt levererat kund%'
@@ -214,11 +224,18 @@ IH.SalesOrgNo,
 IDT.InvoiceDetailNo,
 IH.SupplierNo,
 OL.PackageCode,
-IDT.OL_Reference AS KR_REF,
-isnull(IH.ST_PostalCode,'') 	AS Postnr,
-isnull(IH.ST_CityName,'')	AS ORT,
-isnull(IH.DestinationText,'')	AS DestText,
-IH.QuickInvoice,
+IDT.OL_Reference AS KR_REF
+, isnull(IH.ST_PostalCode,'') 	AS ST_Postalcode
+, isnull(IH.ST_CityName,'')	AS ST_CITY
+, isnull(IH.DestinationText,'')	AS ST_DestText
+, isnull(IH.ST_AddressLine1,'') AS ST_AddressLine1
+, isnull(IH.ST_AddressLine2,'') AS ST_AddressLine2
+, isnull(IH.ST_AddressLine3,'') AS ST_AddressLine3
+, isnull(IH.ST_AddressLine4,'') AS ST_AddressLine4
+, isnull(IH.ST_CountryName,'')  AS ST_CountryName
+, isnull(IH.ST_StateOrProvince,'') AS ST_StateOrProvince
+
+, IH.QuickInvoice,
 
 CASE
 	WHEN OH.SU = 1 AND OH.CustomerNo = 388 -- Skatteupplag + BYGGMAX = ByggMax Norge 
@@ -228,21 +245,10 @@ CASE
 --	THEN  convert(nvarchar(MAX), DATEADD(day,15,IH.InvoiceDate), 23)+', '+convert(nvarchar(MAX), DATEADD(day,30,IH.InvoiceDate), 23)
     THEN convert(nvarchar(MAX), DATEADD(day,30,IH.InvoiceDate), 23)
 	ELSE convert(nvarchar(MAX), IH.Duedate, 23) -- Use VAT
-END AS strDueDate,
+END AS strDueDate
 
-IH.DueDate,
-csd.ProductCodeInfo,
-RS.CompanyName,
-RS.[Address],
-RS.Telefon,
-RS.Email,
-RS.HQ,
-RS.Vat_BankInfo,
-RS.AccountNo,
-RS.Giro,
-pin.CertifiedDescription
-,RS.Logga AS LOGOTYPE
-,RS.FootNote AS FOOTNOTE
+,IH.DueDate
+,csd.ProductCodeInfo
 ,@SHIPPER AS SHIPPER
 ,@TRPID AS TRPID
 ,CASE WHEN @ETA='1900-01-01 00:00:00.000' THEN '' ELSE CONVERT(VARCHAR(10),@ETA,21) END AS ETA
@@ -252,6 +258,20 @@ pin.CertifiedDescription
 ,pin.PET
 
 ,PC.ProductCode AS ArticleNo
+
+-- Bill to address
+,ADR_PT.AddressName AS BillTo_Name
+,ADR_PT.AddressLine1 AS BillTo_AddressLine1
+,ADR_PT.AddressLine2 AS BillTo_AddressLine2
+,ADR_PT.AddressLine3 AS BillTo_AddressLine3
+,ADR_PT.AddressLine4 AS BillTo_AddressLine4
+,PT_CY.CityName AS BillTo_City
+,ADRCTR.CountryName AS BillTo_Country
+,ADRCTR.ISOCountryCode AS BillTo_CountryCodeISO
+,ADR_PT.PostalCode AS BillTo_PostalCode
+,ADR_PT.StateOrProvince AS BillTo_StateOrProvince
+
+
 
 ,CASE
 	WHEN OH.SU = 1 AND OH.SpecialMoms = 0
@@ -299,12 +319,6 @@ Left Outer join dbo.ProdInstru pin on pin.ProdInstruNo = OL.ProdInstructNo
 on csd.CustShipPlanDetailObjectNo = idt.CustShipPlanDetailObjectNo
 
 
---INNER JOIN   dbo.InvoiceShipToAddress AS InSh ON IH.InternalInvoiceNo = InSh.InternalInvoiceNo
---			and	  IDT.Reference = InSh.Reference
---INNER JOIN   dbo.Address AS ADR ON ADR.AddressNo = InSh.AddressNo 
---INNER JOIN   dbo.City AS AdrCY ON AdrCY.CityNo = ADR.CityNo 
---INNER JOIN   dbo.Country AS AdrCtry ON AdrCtry.CountryNo = ADR.CountryNo 
-
 LEFT OUTER JOIN   dbo.InvoiceShipToAddress AS InSh 
 INNER JOIN   dbo.Address AS ADR ON ADR.AddressNo = InSh.AddressNo 
 INNER JOIN   dbo.City AS AdrCY ON AdrCY.CityNo = ADR.CityNo 
@@ -317,6 +331,7 @@ LEFT OUTER JOIN dbo.Address ADR_PT
 	INNER JOIN dbo.Country	ADRCtr	
 		ON	ADRCtr.CountryNo 	= ADR_PT.CountryNo
 	ON	ADR_PT.AddressNo = OH.ClientBillingAddressNo
+	inner join dbo.city PT_CY ON PT_CY.CityNo = ADR_PT.CityNo 
 LEFT OUTER Join dbo.PaymentTextII PayText 
 	ON      PayText.CurrencyNo = OH.CurrencyNo
     AND     PayText.LanguageCode = OH.LanguageCode
@@ -326,11 +341,6 @@ LEFT OUTER Join dbo.PaymentTextII PayText
 -- Artikelnummer
   left outer join Product_code          PC ON PC.ClientNo = OH.CustomerNo AND PC.ProductNo=OL.ProductNo AND PL.ActualLengthMM = PC.ALMM
 -- End Artikelnummer  
-
--- Logotype and footer info
-Left outer join dbo.ReportStaticsII RS on RS.SalesRegionNo = IH.SupplierNo
-and RS.SalesPersonNo = IH.ResponsibleSeller
-and RS.DocType = 2
 
 WHERE
 IH.InternalInvoiceNo = @INVOICENO
