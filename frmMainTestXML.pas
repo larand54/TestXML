@@ -583,26 +583,23 @@ var
   XMLFile: string;
   InvSum: ICMInvoiceSummary;
   sl: TStringList;
+  instr: IXMLNode;
 begin
   invNo := edtInvNo.text;
   XMLFile := format(XML_Template, [invNo]);
   inv := NewInvoiceWood;
-  inv.OwnerDocument.Encoding := 'UTF-8';
-  inv.Attributes['xmlns:xsi'] := 'http://www.w3.org/2001/XMLSchema-instance';
-  inv.Attributes['xsi:noNamespaceSchemaLocation'] := 'InvoiceWoodV2R31.xsd';
-  inv.InvoiceType := 'Invoice';
-  inv.OwnerDocument.SaveToFile(XMLFile);
+//  inv.OwnerDocument.Encoding := 'UTF-8';
+//  inv.Attributes['xmlns:xsi'] := 'http://www.w3.org/2001/XMLSchema-instance';
+//  inv.Attributes['xsi:noNamespaceSchemaLocation'] := 'InvoiceWoodV2R31.xsd';
 
-  try
-    sl := TStringList.Create;
-    sl.LoadFromFile(XMLFile);
-    sl[0] := '<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet href="InvoiceWoodV2R31_Build20081207.xsl" type="text/xsl"?>';
-    sl.SaveToFile(XMLFile);
-  finally
-    sl.Free;
-  end;
+  instr := inv.OwnerDocument.CreateNode('xml-stylesheet', ntProcessingInstr, 'href="InvoiceWoodV2R31_Build20081207.xsl" type="text/xsl"');
+  inv.OwnerDocument.ChildNodes.Add(instr);
+  inv.InvoiceType := 'Invoice';
+ (* inv.OwnerDocument.SaveToFile(XMLFile);
+
 
   inv := LoadInvoiceWood(XMLFile);
+*)
   inv.OwnerDocument.Options := inv.OwnerDocument.Options - [doAttrNull] + [doAutoSave] + [doNodeAutoIndent] + [doNodeAutoCreate];
 
   InvoiceData := TCMInvoice.create;
@@ -629,6 +626,18 @@ begin
   setInvoiceShipment(inv, InvoiceData);
 //  doSaveXML(inv);
   inv.OwnerDocument.SaveToFile(XMLFile);
+
+// Now, fix the prolog
+  try
+    sl := TStringList.Create;
+    sl.LoadFromFile(XMLFile);
+    sl[0] := '<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet href="InvoiceWoodV2R31_Build20081207.xsl" type="text/xsl"?>';
+    sl.SaveToFile(XMLFile);
+  finally
+    sl.Free;
+  end;
+// End, fix prolog
+
   form1.mmo1.Lines.LoadFromFile(XMLFile);
 end;
 
